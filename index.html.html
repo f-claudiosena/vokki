@@ -632,14 +632,14 @@
     }
   }
 
-  /* ---------- DASHBOARD (INÍCIO) ---------- */
+    /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
     const { data: f1 } = await db.from('friends').select('addressee_id').eq('requester_id', profile.id).eq('status', 'accepted');
     const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
     const friendIds = [...(f1||[]).map(f => f.addressee_id), ...(f2||[]).map(f => f.requester_id), profile.id];
 
     const { data: posts, error } = await db.from('posts')
-      .select('*, profiles(name, avatar_url), reactions(type, user_id), comments(id, content, created_at, user_id, profiles(name, avatar_url)), parent_post:posts!parent_post_id(id, content, image_url, created_at, user_id, profiles(name, avatar_url))')
+      .select('*, author:profiles!posts_user_id_fkey(name, avatar_url), reactions(type, user_id), comments(id, content, created_at, user_id, commenter:profiles!comments_user_id_fkey(name, avatar_url)), parent_post:posts!parent_post_id(id, content, image_url, created_at, user_id, parent_author:profiles!posts_user_id_fkey(name, avatar_url))')
       .in('user_id', friendIds)
       .order('created_at', { ascending: false })
       .limit(50);
@@ -777,7 +777,7 @@
     }
   }
 
-  function renderPostHTML(p) {
+    function renderPostHTML(p) {
     const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
     const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
     const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
@@ -785,20 +785,20 @@
     const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === profile.id) : false;
     const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === profile.id) : false;
 
-    const pInitial = p.profiles?.name?.charAt(0).toUpperCase() || '?';
-    const pAvatar = p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
+    const pInitial = p.author?.name?.charAt(0).toUpperCase() || '?';
+    const pAvatar = p.author?.avatar_url ? `<img src="${p.author.avatar_url}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
 
     let contentHTML = '';
     if (p.parent_post) {
       const op = p.parent_post;
-      const opInitial = op.profiles?.name?.charAt(0).toUpperCase() || '?';
-      const opAvatar = op.profiles?.avatar_url ? `<img src="${op.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
+      const opInitial = op.parent_author?.name?.charAt(0).toUpperCase() || '?';
+      const opAvatar = op.parent_author?.avatar_url ? `<img src="${op.parent_author.avatar_url}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
       contentHTML = `
         <div class="dash-post-content">
           <div class="embedded-post">
             <div class="embedded-post-header">
               <div class="message-avatar" style="width:24px;height:24px;" onclick="viewProfile('${op.user_id}')">${opAvatar}</div>
-              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(op.profiles?.name || 'Anônimo')}</span>
+              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(op.parent_author?.name || 'Anônimo')}</span>
             </div>
             <div class="message-body" style="padding-left:0; margin-bottom:0.5rem;">${sanitizeHTML(op.content)}</div>
             ${op.image_url ? `<img src="${op.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
@@ -816,9 +816,9 @@
 
     const commentsHTML = (p.comments || []).map(c => `
       <div class="comment-item">
-        <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${c.profiles?.avatar_url ? `<img src="${c.profiles.avatar_url}">` : `<div class="ph">${c.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+        <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${c.commenter?.avatar_url ? `<img src="${c.commenter.avatar_url}">` : `<div class="ph">${c.commenter?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
         <div class="comment-item-body">
-          <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(c.profiles?.name || 'Anônimo')}</div>
+          <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(c.commenter?.name || 'Anônimo')}</div>
           <div class="comment-item-content">${sanitizeHTML(c.content)}</div>
         </div>
       </div>
@@ -829,7 +829,7 @@
         <div class="dash-post-header">
           <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
           <div style="flex:1;">
-            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(p.profiles?.name || 'Anônimo')}</div>
+            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(p.author?.name || 'Anônimo')}</div>
             <div class="message-time">${formatDate(p.created_at)}</div>
           </div>
           ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
