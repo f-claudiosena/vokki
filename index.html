@@ -426,10 +426,11 @@
 
   async function loadNotifications() {
     if (!profile) return;
-    const { data: requests } = await db.from('friends')
-      .select('*, profiles:requester_id(name, avatar_url)')
+    const { data: requests, error: requestsError } = await db.from('friends')
+      .select('*, profiles!requester_id(name, avatar_url)')
       .eq('addressee_id', profile.id)
       .eq('status', 'pending');
+    if (requestsError) console.error('[Vokki] Falha ao buscar pedidos de amizade:', requestsError);
     
     const count = requests ? requests.length : 0;
     const notifCountEl = document.getElementById('notifCount');
@@ -651,9 +652,9 @@
     let userIds = new Set();
     if (posts && posts.length > 0) {
       posts.forEach(p => {
-        userIds.add(p.user_id);
-        if (p.parent_post) userIds.add(p.parent_post.user_id);
-        if (p.comments) p.comments.forEach(c => userIds.add(c.user_id));
+        if (p.user_id) userIds.add(p.user_id);
+        if (p.parent_post && p.parent_post.user_id) userIds.add(p.parent_post.user_id);
+        if (p.comments) p.comments.forEach(c => { if (c.user_id) userIds.add(c.user_id); });
       });
     }
     
