@@ -146,8 +146,7 @@
   .modal-overlay { position: fixed; inset: 0; background: rgba(42, 40, 35, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 2rem; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); } .modal-overlay.show { display: flex; } .modal { background: var(--cream); border-radius: 1rem; padding: 2rem; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.4s var(--ease-quiet); } @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; } .modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 500; letter-spacing: -0.01em; } .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink-soft); line-height: 1; padding: 0; width: 28px; height: 28px; } .modal-close:hover { color: var(--ink); }
   .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink); color: var(--cream); padding: 0.9rem 1.4rem; border-radius: 0.5rem; font-size: 0.85rem; box-shadow: 0 14px 35px -10px rgba(0,0,0,0.3); transform: translateY(100px); opacity: 0; transition: all 0.4s var(--ease-quiet); z-index: 2000; max-width: 320px; } .toast.show { transform: translateY(0); opacity: 1; } .toast.error { background: var(--danger); } .toast.success { background: #5a7a5a; }
   .loading-spinner { text-align: center; padding: 4rem; color: var(--ink-soft); font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; }
-  @media (max-width: 820px) { .app-body { grid-template-columns: 1fr; padding: 1.25rem; gap: 1.5rem; } .main-content { max-width: 100%; } .sidebar { position: static; } .nav-list { display: flex; gap: 0.25rem; overflow-x: auto; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line); margin-bottom: 0.5rem; } .nav-item { white-space: nowrap; padding: 0.5rem 0.85rem; font-size: 0.85rem; } .nav-item svg { width: 16px; height: 16px; } .app-header { padding: 0.85rem 1.25rem; grid-template-columns: auto 1fr auto; gap: 0.75rem; } .top-tabs { gap: 0.15rem; padding: 0.2rem; } .top-tab { padding: 0.4rem 0.6rem; font-size: 0.62rem; letter-spacing: 0.15em; } .user-mini-name { display: none; } .profile-top { flex-direction: column; text-align: center; padding: 1.5rem; } .profile-bio { padding: 0 1.5rem 1.5rem; } .edit-row { grid-template-columns: 1fr; } .view-title { font-size: 1.4rem; } .forum-detail-header { flex-direction: column; align-items: flex-start; } .forum-detail-header h2 { font-size: 1.5rem; } .message-body { padding-left: 0; } .composer-actions { flex-direction: column; align-items: stretch; } .composer-hint { text-align: center; } }
-    
+  
   /* TEMAS */
   body.theme-gothic { 
     --bg: #121212; --cream: #1e1e1e; --ink: #e0e0e0; --ink-soft: #a0a0a0; --ink-faint: #707070; 
@@ -166,6 +165,8 @@
   
   .theme-card { border: 2px solid transparent; transition: all 0.3s ease; }
   .theme-card.selected { border-color: var(--chamomile); box-shadow: 0 0 0 2px var(--chamomile); transform: translateY(-2px); }
+
+  @media (max-width: 820px) { .app-body { grid-template-columns: 1fr; padding: 1.25rem; gap: 1.5rem; } .main-content { max-width: 100%; } .sidebar { position: static; } .nav-list { display: flex; gap: 0.25rem; overflow-x: auto; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line); margin-bottom: 0.5rem; } .nav-item { white-space: nowrap; padding: 0.5rem 0.85rem; font-size: 0.85rem; } .nav-item svg { width: 16px; height: 16px; } .app-header { padding: 0.85rem 1.25rem; grid-template-columns: auto 1fr auto; gap: 0.75rem; } .top-tabs { gap: 0.15rem; padding: 0.2rem; } .top-tab { padding: 0.4rem 0.6rem; font-size: 0.62rem; letter-spacing: 0.15em; } .user-mini-name { display: none; } .profile-top { flex-direction: column; text-align: center; padding: 1.5rem; } .profile-bio { padding: 0 1.5rem 1.5rem; } .edit-row { grid-template-columns: 1fr; } .view-title { font-size: 1.4rem; } .forum-detail-header { flex-direction: column; align-items: flex-start; } .forum-detail-header h2 { font-size: 1.5rem; } .message-body { padding-left: 0; } .composer-actions { flex-direction: column; align-items: stretch; } .composer-hint { text-align: center; } }
 </style>
 </head>
 <body>
@@ -263,10 +264,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>
           Temas
         </button>
-        <button class="nav-item" data-view="buscar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Buscar
-        </button>
         <div class="search-panel" id="searchPanel">
           <input type="text" class="search-input" id="searchInput" placeholder="Nome do usuário...">
           <div id="searchResults"></div>
@@ -304,6 +301,7 @@
   let previousTopicId = null;
   let notifInterval = null;
   let pendingPostImage = null;
+  let currentThemeSelection = 'default';
 
   function sanitizeHTML(html) {
     if (!html) return '';
@@ -399,153 +397,9 @@
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
 
-    // ===== LÓGICA DE TEMAS =====
-  let currentThemeSelection = 'default';
-
-  function previewTheme(themeName) {
-    document.body.classList.remove('theme-gothic', 'theme-naruto', 'theme-custom');
-    document.documentElement.style.removeProperty('--chamomile');
-    document.documentElement.style.removeProperty('--chamomile-deep');
-    document.documentElement.style.removeProperty('--chamomile-soft');
-    document.documentElement.style.removeProperty('--bg');
-
-    if (themeName === 'gothic') document.body.classList.add('theme-gothic');
-    else if (themeName === 'naruto') document.body.classList.add('theme-naruto');
-    // 'default' e 'custom' não aplicam classe aqui, custom é aplicado no salvar
-  }
-
-  function saveTheme(themeName, colors = null) {
-    previewTheme(themeName); // Aplica visualmente
-    
-    if (themeName === 'default') {
-      localStorage.removeItem('vokki_theme');
-    } else if (themeName === 'gothic' || themeName === 'naruto') {
-      localStorage.setItem('vokki_theme', themeName);
-    } else if (themeName === 'custom' && colors) {
-      document.body.classList.add('theme-custom');
-      document.documentElement.style.setProperty('--chamomile', colors.primary);
-      document.documentElement.style.setProperty('--chamomile-deep', colors.primary);
-      document.documentElement.style.setProperty('--chamomile-soft', colors.primary + '33');
-      document.documentElement.style.setProperty('--bg', colors.secondary);
-      localStorage.setItem('vokki_theme', JSON.stringify({ type: 'custom', colors }));
-    }
-    toast('Tema salvo com sucesso!', 'success');
-  }
-
-  function loadSavedTheme() {
-    const savedTheme = localStorage.getItem('vokki_theme');
-    if (savedTheme === 'gothic') document.body.classList.add('theme-gothic');
-    else if (savedTheme === 'naruto') document.body.classList.add('theme-naruto');
-    else if (savedTheme) {
-      try {
-        const parsed = JSON.parse(savedTheme);
-        if (parsed.type === 'custom') saveTheme('custom', parsed.colors);
-      } catch(e) {}
-    }
-  }
-
-  function renderTemas() {
-    // Verifica qual tema está salvo atualmente
-    const savedThemeRaw = localStorage.getItem('vokki_theme') || 'default';
-    let activeTheme = 'default';
-    try {
-      const parsed = JSON.parse(savedThemeRaw);
-      if (parsed.type === 'custom') activeTheme = 'custom';
-    } catch(e) { activeTheme = savedThemeRaw; }
-    
-    currentThemeSelection = activeTheme;
-
-    const cardHTML = (id, name, desc, style, icon) => `
-      <div class="gallery-card theme-card ${currentThemeSelection === id ? 'selected' : ''}" data-theme="${id}" style="cursor:pointer;">
-        <div class="gallery-card-image" style="${style} display:flex; align-items:center; justify-content:center;">
-          <div class="gallery-card-image-placeholder" style="${style.includes('color:') ? '' : 'text-shadow: 2px 2px 4px rgba(0,0,0,0.5);'}">${icon}</div>
-        </div>
-        <div class="gallery-card-info">
-          <div class="gallery-card-name">${name}</div>
-          <div class="gallery-card-meta">${desc}</div>
-        </div>
-      </div>
-    `;
-
-    mainContent.innerHTML = `
-      <div class="view-header">
-        <div><div class="view-title">Temas</div></div>
-        <button class="btn btn-primary" id="saveThemeBtn" style="width:auto;">Salvar Tema</button>
-      </div>
-      <p style="margin-bottom: 1.5rem; color: var(--ink-soft); font-size: 0.9rem;">Clique em um tema para pré-visualizar. Se gostar, clique em "Salvar Tema" no topo.</p>
-      <div class="gallery-grid">
-        ${cardHTML('default', 'Padrão (Camomila)', 'original', 'background: #f7f4ed; color: #a8893f;', 'C')}
-        ${cardHTML('gothic', 'Tema Gótico', 'escuro', 'background: #1a1a1a; color: #8a2be2;', 'G')}
-        ${cardHTML('naruto', 'Tema Naruto', 'fundo anime', 'background: url("https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg") center/cover; color: #fff;', 'N')}
-        ${cardHTML('custom', 'Cores Personalizadas', 'escolher hex', 'background: linear-gradient(135deg, #c9a96e 50%, #f7f4ed 50%); color: #fff;', '+')}
-      </div>
-    `;
-
-    document.getElementById('saveThemeBtn').addEventListener('click', () => {
-      if (currentThemeSelection === 'custom') {
-        // Se for custom, abre o modal de cores
-        openCustomThemeModal();
-      } else {
-        saveTheme(currentThemeSelection);
-      }
-    });
-
-    document.querySelectorAll('.theme-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const themeId = card.dataset.theme;
-        currentThemeSelection = themeId;
-        
-        // Atualiza visualmente qual está selecionado (borda)
-        document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        
-        // Aplica a pré-visualização
-        if (themeId === 'default') previewTheme('default');
-        else if (themeId === 'gothic') previewTheme('gothic');
-        else if (themeId === 'naruto') previewTheme('naruto');
-        else if (themeId === 'custom') {
-          // No custom, apenas abre o modal direto para escolher
-          openCustomThemeModal();
-        }
-      });
-    });
-  }
-
-  window.openCustomThemeModal = () => {
-    openModal(`
-      <div class="modal-header">
-        <h3>Cores Personalizadas</h3>
-        <button class="modal-close" aria-label="Fechar">×</button>
-      </div>
-      <div style="display:flex; gap:1.5rem; justify-content:center; margin: 1.5rem 0;">
-        <div style="text-align:center;">
-          <label class="form-label" style="margin-bottom:0.5rem;">Cor Primária (Botões)</label>
-          <input type="color" id="colorPrimary" value="#c9a96e" style="width:100px; height:100px; border:none; border-radius:0.5rem; cursor:pointer; background:none;">
-        </div>
-        <div style="text-align:center;">
-          <label class="form-label" style="margin-bottom:0.5rem;">Cor Secundária (Fundo)</label>
-          <input type="color" id="colorSecondary" value="#f7f4ed" style="width:100px; height:100px; border:none; border-radius:0.5rem; cursor:pointer; background:none;">
-        </div>
-      </div>
-      <div class="edit-actions">
-        <button class="btn btn-secondary" id="cancelCustomTheme" type="button">Cancelar</button>
-        <button class="btn btn-primary" id="saveCustomTheme" type="button" style="width:auto;">Salvar Cores</button>
-      </div>
-    `);
-    document.getElementById('cancelCustomTheme').addEventListener('click', closeModal);
-    document.querySelector('.modal-close').addEventListener('click', closeModal);
-    document.getElementById('saveCustomTheme').addEventListener('click', () => {
-      const p = document.getElementById('colorPrimary').value;
-      const s = document.getElementById('colorSecondary').value;
-      currentThemeSelection = 'custom';
-      saveTheme('custom', { primary: p, secondary: s });
-      closeModal();
-      render(); // Re-renderiza para mostrar o card custom selecionado
-    });
-  }
-
   async function init() {
     loadSavedTheme();
+    
     const { data, error } = await db.auth.getSession();
     if (data.session && data.session.user) {
       session = data.session;
@@ -801,7 +655,7 @@
   const mainContent = document.getElementById('mainContent');
   async function render() {
     mainContent.innerHTML = '<div class="loading-spinner">Carregando...</div>';
-    if (!profile && currentView !== 'amigos' && currentView !== 'jogos') {
+    if (!profile && currentView !== 'amigos' && currentView !== 'jogos' && currentView !== 'temas') {
       mainContent.innerHTML = `<div class="empty-state"><h3>Quase lá!</h3><p>Seu perfil está sendo carregado, aguarde um instante...</p></div>`;
       return;
     }
@@ -989,9 +843,8 @@
     const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
 
     let contentHTML = '';
-    let parentPost = Array.isArray(p.parent_post) ? p.parent_post[0] : p.parent_post;
-    if (parentPost && parentPost.id) {
-      const op = parentPost;
+    if (p.parent_post) {
+      const op = p.parent_post;
       const opName = op.author?.name || 'Anônimo';
       const opAvatarUrl = op.author?.avatar_url || null;
       const opInitial = opName.charAt(0).toUpperCase();
@@ -1256,23 +1109,46 @@
 
   /* ---------- AMIGOS ---------- */
   async function renderAmigos() {
-    const { data: f1 } = await db.from('friends').select('*, addressee_id, created_at, profiles:addressee_id(name, avatar_url)').eq('requester_id', profile.id).eq('status', 'accepted');
-    const { data: f2 } = await db.from('friends').select('*, requester_id, created_at, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'accepted');
+    if (!profile) return;
+    const { data: friendships } = await db.from('friends')
+      .select('*')
+      .or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`);
+      
+    const friends = [];
+    const pending = [];
+    const allProfileIds = new Set();
     
-    const friends = [
-      ...(f1||[]).map(f => ({ id: f.addressee_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at })),
-      ...(f2||[]).map(f => ({ id: f.requester_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at }))
-    ];
+    (friendships || []).forEach(f => {
+      const isRequester = f.requester_id === profile.id;
+      const friendId = isRequester ? f.addressee_id : f.requester_id;
+      if (friendId) allProfileIds.add(friendId);
+    });
 
-    const { data: pending } = await db.from('friends').select('*, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'pending');
+    const profilesMap = {};
+    if (allProfileIds.size > 0) {
+      const { data: profilesData } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(allProfileIds));
+      (profilesData || []).forEach(p => profilesMap[p.id] = p);
+    }
+
+    (friendships || []).forEach(f => {
+      const isRequester = f.requester_id === profile.id;
+      const friendId = isRequester ? f.addressee_id : f.requester_id;
+      const friendProfile = profilesMap[friendId] || { name: 'Usuário', avatar_url: null };
+      
+      if (f.status === 'accepted') {
+        friends.push({ id: friendId, name: friendProfile.name, avatar_url: friendProfile.avatar_url, created_at: f.created_at });
+      } else if (f.status === 'pending' && !isRequester) {
+        pending.push({ id: f.id, requester_id: f.requester_id, name: friendProfile.name, avatar_url: friendProfile.avatar_url });
+      }
+    });
 
     let pendingHTML = '';
-    if (pending && pending.length > 0) {
+    if (pending.length > 0) {
       pendingHTML = `<div style="margin-bottom: 2rem;"><div class="view-subtitle" style="margin-bottom:1rem;">Solicitações pendentes</div>${pending.map(p => `
         <div class="friend-card" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
           <div style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;" onclick="viewProfile('${p.requester_id}')">
-            <div class="friend-avatar">${p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${p.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-            <div class="friend-name">${p.profiles?.name || 'Usuário'}</div>
+            <div class="friend-avatar">${p.avatar_url ? `<img src="${p.avatar_url}">` : `<div class="message-avatar-placeholder">${p.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+            <div class="friend-name">${p.name}</div>
           </div>
           <button class="btn btn-primary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="acceptFriend('${p.id}')">Aceitar</button>
         </div>
@@ -1282,7 +1158,7 @@
     const friendsGrid = friends.map(f => `
       <div class="friend-card" onclick="viewProfile('${f.id}')">
         <div class="friend-avatar">${f.avatar_url ? `<img src="${f.avatar_url}">` : `<div class="message-avatar-placeholder">${f.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-        <div class="friend-name">${escapeHtml(f.name || 'Usuário')}</div>
+        <div class="friend-name">${escapeHtml(f.name)}</div>
         <div class="friend-since">Amigos desde ${formatDate(f.created_at)}</div>
       </div>
     `).join('');
@@ -1296,6 +1172,164 @@
 
   function renderJogos() {
     mainContent.innerHTML = `<div class="view-header"><div class="view-title">Jogos</div><div class="view-subtitle">em breve</div></div><div class="empty-state"><h3>Panela no fogo</h3><p>Os jogos estão infundindo. Volte em breve para jogar uma partida enquanto o chá esfria.</p></div>`;
+  }
+
+  /* ---------- TEMAS ---------- */
+  function renderTemas() {
+    const savedThemeRaw = localStorage.getItem('vokki_theme') || 'default';
+    let activeTheme = 'default';
+    try {
+      const parsed = JSON.parse(savedThemeRaw);
+      if (parsed.type === 'custom') activeTheme = 'custom';
+    } catch(e) { activeTheme = savedThemeRaw; }
+    
+    currentThemeSelection = activeTheme;
+
+    const cardHTML = (id, name, desc, style, icon) => `
+      <div class="gallery-card theme-card ${currentThemeSelection === id ? 'selected' : ''}" data-theme="${id}" style="cursor:pointer;">
+        <div class="gallery-card-image" style="${style} display:flex; align-items:center; justify-content:center;">
+          <div class="gallery-card-image-placeholder" style="${style.includes('color:') ? '' : 'text-shadow: 2px 2px 4px rgba(0,0,0,0.5);'}">${icon}</div>
+        </div>
+        <div class="gallery-card-info">
+          <div class="gallery-card-name">${name}</div>
+          <div class="gallery-card-meta">${desc}</div>
+        </div>
+      </div>
+    `;
+
+    mainContent.innerHTML = `
+      <div class="view-header">
+        <div><div class="view-title">Temas</div></div>
+        <button class="btn btn-primary" id="saveThemeBtn" style="width:auto;">Salvar Tema</button>
+      </div>
+      <p style="margin-bottom: 1.5rem; color: var(--ink-soft); font-size: 0.9rem;">Clique em um tema para pré-visualizar. Se gostar, clique em "Salvar Tema" no topo.</p>
+      <div class="gallery-grid">
+        ${cardHTML('default', 'Padrão (Camomila)', 'original', 'background: #f7f4ed; color: #a8893f;', 'C')}
+        ${cardHTML('gothic', 'Tema Gótico', 'escuro', 'background: #1a1a1a; color: #8a2be2;', 'G')}
+        ${cardHTML('naruto', 'Tema Naruto', 'fundo anime', 'background: url("https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg") center/cover; color: #fff;', 'N')}
+        ${cardHTML('custom', 'Cores Personalizadas', 'escolher hex', 'background: linear-gradient(135deg, #c9a96e 50%, #f7f4ed 50%); color: #fff;', '+')}
+      </div>
+    `;
+
+    document.getElementById('saveThemeBtn').addEventListener('click', () => {
+      if (currentThemeSelection === 'custom') {
+        openCustomThemeModal();
+      } else {
+        saveTheme(currentThemeSelection);
+      }
+    });
+
+    document.querySelectorAll('.theme-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const themeId = card.dataset.theme;
+        currentThemeSelection = themeId;
+        
+        document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        
+        if (themeId === 'default') previewTheme('default');
+        else if (themeId === 'gothic') previewTheme('gothic');
+        else if (themeId === 'naruto') previewTheme('naruto');
+        else if (themeId === 'custom') {
+          openCustomThemeModal();
+        }
+      });
+    });
+  }
+
+  function previewTheme(themeName) {
+    document.body.classList.remove('theme-gothic', 'theme-naruto', 'theme-custom');
+    document.documentElement.style.removeProperty('--chamomile');
+    document.documentElement.style.removeProperty('--chamomile-deep');
+    document.documentElement.style.removeProperty('--chamomile-soft');
+    document.documentElement.style.removeProperty('--bg');
+
+    if (themeName === 'gothic') document.body.classList.add('theme-gothic');
+    else if (themeName === 'naruto') document.body.classList.add('theme-naruto');
+  }
+
+  function saveTheme(themeName, colors = null) {
+    previewTheme(themeName); 
+    
+    if (themeName === 'default') {
+      localStorage.removeItem('vokki_theme');
+    } else if (themeName === 'gothic' || themeName === 'naruto') {
+      localStorage.setItem('vokki_theme', themeName);
+    } else if (themeName === 'custom' && colors) {
+      document.body.classList.add('theme-custom');
+      document.documentElement.style.setProperty('--chamomile', colors.primary);
+      document.documentElement.style.setProperty('--chamomile-deep', colors.primary);
+      document.documentElement.style.setProperty('--chamomile-soft', colors.primary + '33');
+      document.documentElement.style.setProperty('--bg', colors.secondary);
+      localStorage.setItem('vokki_theme', JSON.stringify({ type: 'custom', colors }));
+    }
+    toast('Tema salvo com sucesso!', 'success');
+  }
+
+  function loadSavedTheme() {
+    const savedTheme = localStorage.getItem('vokki_theme');
+    if (savedTheme === 'gothic') document.body.classList.add('theme-gothic');
+    else if (savedTheme === 'naruto') document.body.classList.add('theme-naruto');
+    else if (savedTheme) {
+      try {
+        const parsed = JSON.parse(savedTheme);
+        if (parsed.type === 'custom' && parsed.colors) {
+          document.body.classList.add('theme-custom');
+          document.documentElement.style.setProperty('--chamomile', parsed.colors.primary);
+          document.documentElement.style.setProperty('--chamomile-deep', parsed.colors.primary);
+          document.documentElement.style.setProperty('--chamomile-soft', parsed.colors.primary + '33');
+          document.documentElement.style.setProperty('--bg', parsed.colors.secondary);
+        }
+      } catch(e) {}
+    }
+  }
+
+  window.openCustomThemeModal = () => {
+    let currentPrimary = '#c9a96e';
+    let currentSecondary = '#f7f4ed';
+    const saved = localStorage.getItem('vokki_theme');
+    if (saved === 'gothic') { currentPrimary = '#8a2be2'; currentSecondary = '#121212'; }
+    else if (saved === 'naruto') { currentPrimary = '#ff7b00'; currentSecondary = '#1a1a1a'; }
+    else if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.type === 'custom' && parsed.colors) {
+          currentPrimary = parsed.colors.primary;
+          currentSecondary = parsed.colors.secondary;
+        }
+      } catch(e) {}
+    }
+
+    openModal(`
+      <div class="modal-header">
+        <h3>Cores Personalizadas</h3>
+        <button class="modal-close" aria-label="Fechar">×</button>
+      </div>
+      <div style="display:flex; gap:1.5rem; justify-content:center; margin: 1.5rem 0;">
+        <div style="text-align:center;">
+          <label class="form-label" style="margin-bottom:0.5rem;">Cor Primária (Botões)</label>
+          <input type="color" id="colorPrimary" value="${currentPrimary}" style="width:100px; height:100px; border:none; border-radius:0.5rem; cursor:pointer; background:none;">
+        </div>
+        <div style="text-align:center;">
+          <label class="form-label" style="margin-bottom:0.5rem;">Cor Secundária (Fundo)</label>
+          <input type="color" id="colorSecondary" value="${currentSecondary}" style="width:100px; height:100px; border:none; border-radius:0.5rem; cursor:pointer; background:none;">
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn btn-secondary" id="cancelCustomTheme" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="saveCustomTheme" type="button" style="width:auto;">Salvar Cores</button>
+      </div>
+    `);
+    document.getElementById('cancelCustomTheme').addEventListener('click', closeModal);
+    document.querySelector('.modal-close').addEventListener('click', closeModal);
+    document.getElementById('saveCustomTheme').addEventListener('click', () => {
+      const p = document.getElementById('colorPrimary').value;
+      const s = document.getElementById('colorSecondary').value;
+      currentThemeSelection = 'custom';
+      saveTheme('custom', { primary: p, secondary: s });
+      closeModal();
+      render(); 
+    });
   }
 
   async function renderFacetas() {
