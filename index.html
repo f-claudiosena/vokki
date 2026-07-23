@@ -838,7 +838,7 @@
     }
   }
 
-    function renderPostHTML(p) {
+  function renderPostHTML(p) {
     const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
     const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
     const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
