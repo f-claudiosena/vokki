@@ -377,10 +377,10 @@
 
   async function init() {
     const { data } = await db.auth.getSession();
-    if (data.session) {
+    if (data.session && data.session.user) {
       session = data.session;
       await loadProfile();
-      showApp();
+      if (profile) showApp(); else showLogin();
     } else {
       showLogin();
     }
@@ -388,12 +388,12 @@
     db.auth.onAuthStateChange(async (event, newSession) => {
       if (event === 'INITIAL_SESSION' && isInitialized) return;
       isInitialized = true;
-      if (newSession) {
+      if (newSession && newSession.user) {
         session = newSession;
         if (!profile || profile.id !== newSession.user.id) {
           await loadProfile();
         }
-        showApp();
+        if (profile) showApp(); else showLogin();
       } else {
         session = null;
         profile = null;
@@ -403,7 +403,7 @@
   }
 
   async function loadProfile() {
-    if (!session || !session.user) return;
+    if (!session || !session.user || !session.user.id) return;
     const { data, error } = await db.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
     if (error) { console.error('Erro ao buscar perfil:', error); return; }
     
@@ -425,22 +425,23 @@
   }
 
   async function loadNotifications() {
-    if (!profile) return;
+    if (!profile || !profile.id) return;
     
-    // Busca os pedidos pendentes crus
     const { data: requests } = await db.from('friends')
       .select('*')
       .eq('addressee_id', profile.id)
       .eq('status', 'pending');
       
     if (requests && requests.length > 0) {
-      // Busca os perfis dos solicitantes
-      const reqIds = requests.map(r => r.requester_id);
-      const { data: reqProfiles } = await db.from('profiles').select('id, name, avatar_url').in('id', reqIds);
-      const profilesMap = {};
-      (reqProfiles || []).forEach(p => profilesMap[p.id] = p);
-      
-      window.pendingRequests = requests.map(r => ({ ...r, profiles: profilesMap[r.requester_id] }));
+      const reqIds = requests.map(r => r.requester_id).filter(id => !!id);
+      if (reqIds.length > 0) {
+        const { data: reqProfiles } = await db.from('profiles').select('id, name, avatar_url').in('id', reqIds);
+        const profilesMap = {};
+        (reqProfiles || []).forEach(p => profilesMap[p.id] = p);
+        window.pendingRequests = requests.map(r => ({ ...r, profiles: profilesMap[r.requester_id] }));
+      } else {
+        window.pendingRequests = [];
+      }
     } else {
       window.pendingRequests = [];
     }
@@ -530,8 +531,8 @@
       return;
     }
     session = data.session; await loadProfile();
-    loginForm.reset(); showApp();
-    toast('Bem-vindo de volta, ' + profile.name + '.', 'success');
+    loginForm.reset(); 
+    if (profile) showApp();
   });
 
   registerForm.addEventListener('submit', async (e) => {
@@ -574,6 +575,7 @@
   document.getElementById('searchInput').addEventListener('input', async (e) => {
     const q = e.target.value.trim();
     const resultsEl = document.getElementById('searchResults');
+    if (!profile || !profile.id) return;
     if (q.length < 2) { resultsEl.innerHTML = ''; return; }
     const { data: users } = await db.from('profiles').select('id, name, avatar_url').ilike('name', `%${q}%`).neq('id', profile.id).limit(5);
     if (!users || users.length === 0) { resultsEl.innerHTML = '<div style="font-size:0.8rem; color:var(--ink-soft); padding:0.5rem;">Nenhum usuário encontrado.</div>'; return; }
@@ -586,6 +588,7 @@
   });
 
   window.viewProfile = (userId) => {
+    if (!userId) return;
     previousView = currentView;
     previousTopicId = currentTopicId;
     viewingProfileId = userId;
@@ -647,11 +650,10 @@
 
   /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
-    // Busca amizades aceitas unificadas
+    if (!profile || !profile.id) return;
     const { data: friendships } = await db.from('friends').select('*').or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`).eq('status', 'accepted');
     const friendIds = [...(friendships||[]).map(f => f.requester_id === profile.id ? f.addressee_id : f.requester_id), profile.id];
 
-    // 1. Busca os posts SEM tentar cruzar com profiles
     const { data: posts, error } = await db.from('posts')
       .select('*, reactions(type, user_id), comments(*), parent_post:posts!parent_post_id(*)')
       .in('user_id', friendIds)
@@ -660,7 +662,6 @@
       
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
 
-    // 2. Busca os perfis de todos os envolvidos separadamente
     let userIds = new Set();
     if (posts && posts.length > 0) {
       posts.forEach(p => {
@@ -676,10 +677,8 @@
       (profilesData || []).forEach(p => profilesMap[p.id] = p);
     }
     
-    // Garante que o próprio usuário esteja no mapa
     profilesMap[profile.id] = { id: profile.id, name: profile.name, avatar_url: profile.avatar_url };
 
-    // 3. Juntando os dados manualmente
     posts.forEach(p => {
       let authorData = profilesMap[p.user_id] || { name: 'Anônimo', avatar_url: null };
       p.author = authorData;
@@ -949,7 +948,9 @@
 
   /* ---------- PERFIL ---------- */
   async function renderProfile() {
+    if (!profile || !profile.id) return;
     const targetId = viewingProfileId || profile.id;
+    if (!targetId) return;
     const isOwn = targetId === profile.id;
     
     const { data: targetProfile, error } = await db.from('profiles').select('*').eq('id', targetId).single();
@@ -961,7 +962,6 @@
     } else {
       headerActions = `<button class="btn btn-secondary" id="backFromProfileBtn" style="width:auto; margin-right: 0.5rem;">← Voltar</button>`;
       
-      // Lógica de amizade unificada
       const { data: f1 } = await db.from('friends').select('id, status, requester_id, addressee_id').eq('requester_id', profile.id).eq('addressee_id', targetId).maybeSingle();
       const { data: f2 } = await db.from('friends').select('id, status, requester_id, addressee_id').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
       const friendship = f1 || f2;
@@ -1007,7 +1007,6 @@
       document.getElementById('backFromProfileBtn').addEventListener('click', goBack);
       const addBtn = document.getElementById('addFriendBtn');
       if (addBtn) addBtn.addEventListener('click', async () => {
-        // Verifica se já existe pedido reverso
         const { data: reverseReq } = await db.from('friends').select('*').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
         if (reverseReq) {
           await db.from('friends').update({ status: 'accepted' }).eq('id', reverseReq.id);
@@ -1107,7 +1106,7 @@
 
   /* ---------- AMIGOS ---------- */
   async function renderAmigos() {
-    // Busca todas as amizades onde o usuário está envolvido
+    if (!profile || !profile.id) return;
     const { data: friendships } = await db.from('friends')
       .select('*')
       .or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`);
@@ -1119,7 +1118,7 @@
     (friendships || []).forEach(f => {
       const isRequester = f.requester_id === profile.id;
       const friendId = isRequester ? f.addressee_id : f.requester_id;
-      allProfileIds.add(friendId);
+      if (friendId) allProfileIds.add(friendId);
     });
 
     const profilesMap = {};
@@ -1173,8 +1172,9 @@
   }
 
   async function renderFacetas() {
-    if (!profile) { mainContent.innerHTML = '<div class="loading-spinner">Carregando perfil...</div>'; return; }
+    if (!profile || !profile.id) return;
     const targetId = viewingProfileId || profile.id;
+    if (!targetId) return;
     const { data: items, error } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
     const grid = (items || []).map(f => `
@@ -1202,8 +1202,9 @@
   }
 
   async function renderRealismo() {
-    if (!profile) { mainContent.innerHTML = '<div class="loading-spinner">Carregando perfil...</div>'; return; }
+    if (!profile || !profile.id) return;
     const targetId = viewingProfileId || profile.id;
+    if (!targetId) return;
     const { data: items, error } = await db.from('realismo').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
     const grid = (items || []).map(r => `
@@ -1275,7 +1276,7 @@
 
   /* ---------- RABISCO ---------- */
   async function renderRabisco() {
-    if (!profile) { mainContent.innerHTML = '<div class="loading-spinner">Carregando perfil...</div>'; return; }
+    if (!profile || !profile.id) return;
     if (currentTopicId) return renderTopic();
     const joinedTopics = profile.joined_topics || [];
     let filter = `user_id.eq.${profile.id}`;
@@ -1361,7 +1362,7 @@
   }
 
   async function renderTopic() {
-    if (!profile) { mainContent.innerHTML = '<div class="loading-spinner">Carregando perfil...</div>'; return; }
+    if (!profile || !profile.id) return;
     const { data: topic, error: topicError } = await db.from('topics').select('*').eq('id', currentTopicId).single();
     if (topicError || !topic) { currentTopicId = null; return renderRabisco(); }
     const { data: msgs, error: msgsError } = await db.from('messages').select('*, facetas(name, image_url)').eq('topic_id', topic.id).order('created_at', { ascending: true });
