@@ -466,7 +466,7 @@
     closeModal();
     await loadNotifications();
     toast('Amizade aceita!', 'success');
-    if (currentView === 'inicio' && viewingProfileId) render();
+    if (currentView === 'amigos' || (currentView === 'perfil' && viewingProfileId)) render();
   };
 
   function showLogin() { appEl.classList.remove('show'); loginScreen.style.display = 'flex'; }
@@ -634,11 +634,11 @@
 
   /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
-    const { data: f1 } = await db.from('friends').select('addressee_id').eq('requester_id', profile.id).eq('status', 'accepted');
-    const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
-    const friendIds = [...(f1||[]).map(f => f.addressee_id), ...(f2||[]).map(f => f.requester_id), profile.id];
+    // Busca amizades aceitas unificadas
+    const { data: friendships } = await db.from('friends').select('*').or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`).eq('status', 'accepted');
+    const friendIds = [...(friendships||[]).map(f => f.requester_id === profile.id ? f.addressee_id : f.requester_id), profile.id];
 
-    // 1. Busca os posts SEM tentar cruzar com profiles (evita o bug do schema cache)
+    // 1. Busca os posts SEM tentar cruzar com profiles
     const { data: posts, error } = await db.from('posts')
       .select('*, reactions(type, user_id), comments(*), parent_post:posts!parent_post_id(*)')
       .in('user_id', friendIds)
@@ -666,41 +666,18 @@
     // Garante que o próprio usuário esteja no mapa
     profilesMap[profile.id] = { id: profile.id, name: profile.name, avatar_url: profile.avatar_url };
 
-    // 3. Juntando os dados manualmente no JavaScript (blindagem total)
+    // 3. Juntando os dados manualmente
     posts.forEach(p => {
-      let authorData = profilesMap[p.user_id];
-      if (!authorData) {
-        authorData = { name: 'Anônimo', avatar_url: null };
-        if (p.user_id === profile.id) {
-          authorData.name = profile.name;
-          authorData.avatar_url = profile.avatar_url;
-        }
-      }
+      let authorData = profilesMap[p.user_id] || { name: 'Anônimo', avatar_url: null };
       p.author = authorData;
       
       if (p.parent_post) {
-        let opData = profilesMap[p.parent_post.user_id];
-        if (!opData) {
-          opData = { name: 'Anônimo', avatar_url: null };
-          if (p.parent_post.user_id === profile.id) {
-            opData.name = profile.name;
-            opData.avatar_url = profile.avatar_url;
-          }
-        }
-        p.parent_post.author = opData;
+        p.parent_post.author = profilesMap[p.parent_post.user_id] || { name: 'Anônimo', avatar_url: null };
       }
       
       if (p.comments) {
         p.comments.forEach(c => {
-          let cData = profilesMap[c.user_id];
-          if (!cData) {
-            cData = { name: 'Anônimo', avatar_url: null };
-            if (c.user_id === profile.id) {
-              cData.name = profile.name;
-              cData.avatar_url = profile.avatar_url;
-            }
-          }
-          c.commenter = cData;
+          c.commenter = profilesMap[c.user_id] || { name: 'Anônimo', avatar_url: null };
         });
       }
     });
@@ -840,9 +817,9 @@
     const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
     const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
     const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
-    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === session.user.id) : false;
-    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === session.user.id) : false;
-    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === session.user.id) : false;
+    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === profile.id) : false;
+    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === profile.id) : false;
+    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === profile.id) : false;
 
     const authorName = p.author?.name || (p.user_id === profile.id ? profile.name : 'Anônimo');
     const authorAvatar = p.author?.avatar_url || (p.user_id === profile.id ? profile.avatar_url : null);
@@ -901,7 +878,7 @@
             <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(authorName)}</div>
             <div class="message-time">${formatDate(p.created_at)}</div>
           </div>
-          ${p.user_id === session.user.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
+          ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
         </div>
         ${contentHTML}
         <div class="post-actions">
@@ -971,13 +948,10 @@
     } else {
       headerActions = `<button class="btn btn-secondary" id="backFromProfileBtn" style="width:auto; margin-right: 0.5rem;">← Voltar</button>`;
       
-      let friendship = null;
+      // Lógica de amizade unificada
       const { data: f1 } = await db.from('friends').select('*').eq('requester_id', profile.id).eq('addressee_id', targetId).maybeSingle();
-      if (f1) friendship = f1;
-      else {
-        const { data: f2 } = await db.from('friends').select('*').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
-        if (f2) friendship = f2;
-      }
+      const { data: f2 } = await db.from('friends').select('*').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
+      const friendship = f1 || f2;
       
       if (!friendship) {
         headerActions += `<button class="btn btn-primary" id="addFriendBtn" style="width:auto;">Adicionar</button>`;
@@ -1020,8 +994,16 @@
       document.getElementById('backFromProfileBtn').addEventListener('click', goBack);
       const addBtn = document.getElementById('addFriendBtn');
       if (addBtn) addBtn.addEventListener('click', async () => {
-        await db.from('friends').insert([{ requester_id: profile.id, addressee_id: targetId, status: 'pending' }]);
-        toast('Pedido de amizade enviado!', 'success');
+        // Verifica se já existe pedido reverso
+        const { data: reverseReq } = await db.from('friends').select('*').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
+        if (reverseReq) {
+          await db.from('friends').update({ status: 'accepted' }).eq('id', reverseReq.id);
+          toast('Vocês agora são amigos!', 'success');
+        } else {
+          await db.from('friends').insert([{ requester_id: profile.id, addressee_id: targetId, status: 'pending' }]);
+          toast('Pedido de amizade enviado!', 'success');
+        }
+        await loadNotifications();
         render();
       });
       const accBtn = document.getElementById('acceptFriendBtn');
@@ -1112,23 +1094,33 @@
 
   /* ---------- AMIGOS ---------- */
   async function renderAmigos() {
-    const { data: f1 } = await db.from('friends').select('*, addressee_id, created_at, profiles:addressee_id(name, avatar_url)').eq('requester_id', profile.id).eq('status', 'accepted');
-    const { data: f2 } = await db.from('friends').select('*, requester_id, created_at, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'accepted');
+    // Busca todas as amizades onde o usuário está envolvido
+    const { data: friendships } = await db.from('friends')
+      .select('*, requester:profiles!requester_id(name, avatar_url), addressee:profiles!addressee_id(name, avatar_url)')
+      .or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`);
+      
+    const friends = [];
+    const pending = [];
     
-    const friends = [
-      ...(f1||[]).map(f => ({ id: f.addressee_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at })),
-      ...(f2||[]).map(f => ({ id: f.requester_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at }))
-    ];
-
-    const { data: pending } = await db.from('friends').select('*, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'pending');
+    (friendships || []).forEach(f => {
+      const isRequester = f.requester_id === profile.id;
+      const friendProfile = isRequester ? f.addressee : f.requester;
+      const friendId = isRequester ? f.addressee_id : f.requester_id;
+      
+      if (f.status === 'accepted') {
+        friends.push({ id: friendId, name: friendProfile?.name || 'Usuário', avatar_url: friendProfile?.avatar_url, created_at: f.created_at });
+      } else if (f.status === 'pending' && !isRequester) {
+        pending.push({ id: f.id, requester_id: f.requester_id, name: friendProfile?.name || 'Usuário', avatar_url: friendProfile?.avatar_url });
+      }
+    });
 
     let pendingHTML = '';
-    if (pending && pending.length > 0) {
+    if (pending.length > 0) {
       pendingHTML = `<div style="margin-bottom: 2rem;"><div class="view-subtitle" style="margin-bottom:1rem;">Solicitações pendentes</div>${pending.map(p => `
         <div class="friend-card" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
           <div style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;" onclick="viewProfile('${p.requester_id}')">
-            <div class="friend-avatar">${p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${p.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-            <div class="friend-name">${p.profiles?.name || 'Usuário'}</div>
+            <div class="friend-avatar">${p.avatar_url ? `<img src="${p.avatar_url}">` : `<div class="message-avatar-placeholder">${p.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+            <div class="friend-name">${p.name}</div>
           </div>
           <button class="btn btn-primary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="acceptFriend('${p.id}')">Aceitar</button>
         </div>
@@ -1138,7 +1130,7 @@
     const friendsGrid = friends.map(f => `
       <div class="friend-card" onclick="viewProfile('${f.id}')">
         <div class="friend-avatar">${f.avatar_url ? `<img src="${f.avatar_url}">` : `<div class="message-avatar-placeholder">${f.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-        <div class="friend-name">${escapeHtml(f.name || 'Usuário')}</div>
+        <div class="friend-name">${escapeHtml(f.name)}</div>
         <div class="friend-since">Amigos desde ${formatDate(f.created_at)}</div>
       </div>
     `).join('');
