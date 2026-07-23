@@ -829,7 +829,7 @@
     }
   }
 
-  function renderPostHTML(p) {
+    function renderPostHTML(p) {
     const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
     const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
     const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
@@ -837,16 +837,19 @@
     const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === session.user.id) : false;
     const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === session.user.id) : false;
 
-    const authorName = p.author?.name || 'Anônimo';
-    const authorAvatar = p.author?.avatar_url || null;
+    // Pega o autor (tratando se vier como array ou objeto)
+    const authorObj = Array.isArray(p.author) ? p.author[0] : p.author;
+    const authorName = authorObj?.name || (p.user_id === session.user.id ? profile.name : 'Anônimo');
+    const authorAvatar = authorObj?.avatar_url || (p.user_id === session.user.id ? profile.avatar_url : null);
     const pInitial = authorName.charAt(0).toUpperCase();
     const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
 
     let contentHTML = '';
     if (p.parent_post) {
       const op = p.parent_post;
-      const opName = op.author?.name || 'Anônimo';
-      const opAvatarUrl = op.author?.avatar_url || null;
+      const opObj = Array.isArray(op.author) ? op.author[0] : op.author;
+      const opName = opObj?.name || (op.user_id === session.user.id ? profile.name : 'Anônimo');
+      const opAvatarUrl = opObj?.avatar_url || (op.user_id === session.user.id ? profile.avatar_url : null);
       const opInitial = opName.charAt(0).toUpperCase();
       const opAvatar = opAvatarUrl ? `<img src="${opAvatarUrl}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
       contentHTML = `
@@ -871,8 +874,10 @@
     }
 
     const commentsHTML = (p.comments || []).map(c => {
-      const cName = c.author?.name || 'Anônimo';
-      const cAvatarUrl = c.author?.avatar_url || null;
+      // Pega o autor do comentário (tratando array)
+      const cObj = Array.isArray(c.author) ? c.author[0] : c.author;
+      const cName = cObj?.name || (c.user_id === session.user.id ? profile.name : 'Anônimo');
+      const cAvatarUrl = cObj?.avatar_url || (c.user_id === session.user.id ? profile.avatar_url : null);
       const cInitial = cName.charAt(0).toUpperCase();
       const cAvatar = cAvatarUrl ? `<img src="${cAvatarUrl}">` : `<div class="ph">${cInitial}</div>`;
       return `
