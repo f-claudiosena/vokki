@@ -376,18 +376,46 @@
   const registerForm = document.getElementById('registerForm');
 
   async function init() {
-    const { data } = await db.auth.getSession();
+    const { data, error } = await db.auth.getSession();
+    
     if (data.session && data.session.user) {
       session = data.session;
-      await loadProfile();
-      if (profile) showApp(); else showLogin();
+      // Valida se o token ainda é válido buscando o usuário no banco
+      const { data: userData, error: userError } = await db.auth.getUser();
+      if (userError) {
+        // Se der erro 403 (token expirado/inválido), desloga e limpa a tela
+        console.warn("Token expirado ou inválido. Deslogando...");
+        await db.auth.signOut();
+        session = null;
+        profile = null;
+      } else {
+        await loadProfile();
+      }
+    }
+    
+    // Se o perfil carregou, mostra o app. Senão, mostra a tela de login
+    if (profile) {
+      showApp();
     } else {
+      // Limpa qualquer resquício de token da URL do Google
+      if (window.location.hash.includes('access_token') || window.location.hash.includes('error')) {
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+      }
       showLogin();
     }
 
     db.auth.onAuthStateChange(async (event, newSession) => {
       if (event === 'INITIAL_SESSION' && isInitialized) return;
       isInitialized = true;
+      
+      if (event === 'SIGNED_OUT') {
+        session = null;
+        profile = null;
+        if (window.location.hash) window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+        showLogin();
+        return;
+      }
+      
       if (newSession && newSession.user) {
         session = newSession;
         if (!profile || profile.id !== newSession.user.id) {
