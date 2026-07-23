@@ -632,13 +632,13 @@
     }
   }
 
-    /* ---------- DASHBOARD (INÍCIO) ---------- */
+  /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
     const { data: f1 } = await db.from('friends').select('addressee_id').eq('requester_id', profile.id).eq('status', 'accepted');
     const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
     const friendIds = [...(f1||[]).map(f => f.addressee_id), ...(f2||[]).map(f => f.requester_id), profile.id];
 
-    // 1. Busca os posts SEM tentar cruzar com profiles
+    // 1. Busca os posts SEM cruzar com profiles (evita o bug do schema cache)
     const { data: posts, error } = await db.from('posts')
       .select('*, reactions(type, user_id), comments(*), parent_post:posts!parent_post_id(*)')
       .in('user_id', friendIds)
@@ -647,7 +647,7 @@
       
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
 
-    // 2. Busca os perfis de todos os autores dos posts e comentários
+    // 2. Busca os perfis de todos os envolvidos separadamente
     let userIds = new Set();
     posts.forEach(p => {
       userIds.add(p.user_id);
@@ -659,20 +659,50 @@
     const profilesMap = {};
     (profilesData || []).forEach(p => profilesMap[p.id] = p);
 
-    // 3. Juntando os dados manualmente
+    // 3. Juntando os dados manualmente no JavaScript (blindagem total)
     posts.forEach(p => {
-      p.author = profilesMap[p.user_id] || { name: 'Anônimo', avatar_url: null };
-      if (!p.author.name && p.user_id === profile.id) p.author.name = profile.name;
+      let authorData = profilesMap[p.user_id];
+      if (!authorData) {
+        authorData = {};
+        if (p.user_id === profile.id) {
+          authorData.name = profile.name;
+          authorData.avatar_url = profile.avatar_url;
+        } else {
+          authorData.name = 'Anônimo';
+          authorData.avatar_url = null;
+        }
+      }
+      p.author = authorData;
       
       if (p.parent_post) {
-        p.parent_post.author = profilesMap[p.parent_post.user_id] || { name: 'Anônimo', avatar_url: null };
-        if (!p.parent_post.author.name && p.parent_post.user_id === profile.id) p.parent_post.author.name = profile.name;
+        let opData = profilesMap[p.parent_post.user_id];
+        if (!opData) {
+          opData = {};
+          if (p.parent_post.user_id === profile.id) {
+            opData.name = profile.name;
+            opData.avatar_url = profile.avatar_url;
+          } else {
+            opData.name = 'Anônimo';
+            opData.avatar_url = null;
+          }
+        }
+        p.parent_post.author = opData;
       }
       
       if (p.comments) {
         p.comments.forEach(c => {
-          c.commenter = profilesMap[c.user_id] || { name: 'Anônimo', avatar_url: null };
-          if (!c.commenter.name && c.user_id === profile.id) c.commenter.name = profile.name;
+          let cData = profilesMap[c.user_id];
+          if (!cData) {
+            cData = {};
+            if (c.user_id === profile.id) {
+              cData.name = profile.name;
+              cData.avatar_url = profile.avatar_url;
+            } else {
+              cData.name = 'Anônimo';
+              cData.avatar_url = null;
+            }
+          }
+          c.commenter = cData;
         });
       }
     });
@@ -816,18 +846,16 @@
     const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === session.user.id) : false;
     const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === session.user.id) : false;
 
-    const authorObj = Array.isArray(p.author) ? p.author[0] : p.author;
-    const authorName = authorObj?.name || (p.user_id === session.user.id ? profile.name : 'Anônimo');
-    const authorAvatar = authorObj?.avatar_url || (p.user_id === session.user.id ? profile.avatar_url : null);
+    const authorName = p.author?.name || 'Anônimo';
+    const authorAvatar = p.author?.avatar_url || null;
     const pInitial = authorName.charAt(0).toUpperCase();
     const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
 
     let contentHTML = '';
     if (p.parent_post) {
       const op = p.parent_post;
-      const opObj = Array.isArray(op.parent_author) ? op.parent_author[0] : op.parent_author;
-      const opName = opObj?.name || (op.user_id === session.user.id ? profile.name : 'Anônimo');
-      const opAvatarUrl = opObj?.avatar_url || (op.user_id === session.user.id ? profile.avatar_url : null);
+      const opName = op.author?.name || 'Anônimo';
+      const opAvatarUrl = op.author?.avatar_url || null;
       const opInitial = opName.charAt(0).toUpperCase();
       const opAvatar = opAvatarUrl ? `<img src="${opAvatarUrl}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
       contentHTML = `
@@ -852,9 +880,8 @@
     }
 
     const commentsHTML = (p.comments || []).map(c => {
-      const cObj = Array.isArray(c.commenter) ? c.commenter[0] : c.commenter;
-      const cName = cObj?.name || (c.user_id === session.user.id ? profile.name : 'Anônimo');
-      const cAvatarUrl = cObj?.avatar_url || (c.user_id === session.user.id ? profile.avatar_url : null);
+      const cName = c.commenter?.name || 'Anônimo';
+      const cAvatarUrl = c.commenter?.avatar_url || null;
       const cInitial = cName.charAt(0).toUpperCase();
       const cAvatar = cAvatarUrl ? `<img src="${cAvatarUrl}">` : `<div class="ph">${cInitial}</div>`;
       return `
