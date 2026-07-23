@@ -426,13 +426,26 @@
 
   async function loadNotifications() {
     if (!profile) return;
-    const { data: requests, error: requestsError } = await db.from('friends')
-      .select('*, profiles!requester_id(name, avatar_url)')
+    
+    // Busca os pedidos pendentes crus
+    const { data: requests } = await db.from('friends')
+      .select('*')
       .eq('addressee_id', profile.id)
       .eq('status', 'pending');
-    if (requestsError) console.error('[Vokki] Falha ao buscar pedidos de amizade:', requestsError);
+      
+    if (requests && requests.length > 0) {
+      // Busca os perfis dos solicitantes
+      const reqIds = requests.map(r => r.requester_id);
+      const { data: reqProfiles } = await db.from('profiles').select('id, name, avatar_url').in('id', reqIds);
+      const profilesMap = {};
+      (reqProfiles || []).forEach(p => profilesMap[p.id] = p);
+      
+      window.pendingRequests = requests.map(r => ({ ...r, profiles: profilesMap[r.requester_id] }));
+    } else {
+      window.pendingRequests = [];
+    }
     
-    const count = requests ? requests.length : 0;
+    const count = window.pendingRequests.length;
     const notifCountEl = document.getElementById('notifCount');
     if (count > 0) {
       notifCountEl.textContent = count;
@@ -440,7 +453,6 @@
     } else {
       notifCountEl.classList.add('hidden');
     }
-    window.pendingRequests = requests || [];
   }
 
   document.getElementById('notifBtn').addEventListener('click', () => {
@@ -660,8 +672,7 @@
     
     const profilesMap = {};
     if (userIds.size > 0) {
-      const { data: profilesData, error: profilesError } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(userIds));
-      if (profilesError) console.error('[Vokki] Falha ao buscar perfis (provável bloqueio de RLS no Supabase):', profilesError);
+      const { data: profilesData } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(userIds));
       (profilesData || []).forEach(p => profilesMap[p.id] = p);
     }
     
@@ -951,8 +962,8 @@
       headerActions = `<button class="btn btn-secondary" id="backFromProfileBtn" style="width:auto; margin-right: 0.5rem;">← Voltar</button>`;
       
       // Lógica de amizade unificada
-      const { data: f1 } = await db.from('friends').select('*').eq('requester_id', profile.id).eq('addressee_id', targetId).maybeSingle();
-      const { data: f2 } = await db.from('friends').select('*').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
+      const { data: f1 } = await db.from('friends').select('id, status, requester_id, addressee_id').eq('requester_id', profile.id).eq('addressee_id', targetId).maybeSingle();
+      const { data: f2 } = await db.from('friends').select('id, status, requester_id, addressee_id').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
       const friendship = f1 || f2;
       
       if (!friendship) {
@@ -1098,21 +1109,34 @@
   async function renderAmigos() {
     // Busca todas as amizades onde o usuário está envolvido
     const { data: friendships } = await db.from('friends')
-      .select('*, requester:profiles!requester_id(name, avatar_url), addressee:profiles!addressee_id(name, avatar_url)')
+      .select('*')
       .or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`);
       
     const friends = [];
     const pending = [];
+    const allProfileIds = new Set();
     
     (friendships || []).forEach(f => {
       const isRequester = f.requester_id === profile.id;
-      const friendProfile = isRequester ? f.addressee : f.requester;
       const friendId = isRequester ? f.addressee_id : f.requester_id;
+      allProfileIds.add(friendId);
+    });
+
+    const profilesMap = {};
+    if (allProfileIds.size > 0) {
+      const { data: profilesData } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(allProfileIds));
+      (profilesData || []).forEach(p => profilesMap[p.id] = p);
+    }
+
+    (friendships || []).forEach(f => {
+      const isRequester = f.requester_id === profile.id;
+      const friendId = isRequester ? f.addressee_id : f.requester_id;
+      const friendProfile = profilesMap[friendId] || { name: 'Usuário', avatar_url: null };
       
       if (f.status === 'accepted') {
-        friends.push({ id: friendId, name: friendProfile?.name || 'Usuário', avatar_url: friendProfile?.avatar_url, created_at: f.created_at });
+        friends.push({ id: friendId, name: friendProfile.name, avatar_url: friendProfile.avatar_url, created_at: f.created_at });
       } else if (f.status === 'pending' && !isRequester) {
-        pending.push({ id: f.id, requester_id: f.requester_id, name: friendProfile?.name || 'Usuário', avatar_url: friendProfile?.avatar_url });
+        pending.push({ id: f.id, requester_id: f.requester_id, name: friendProfile.name, avatar_url: friendProfile.avatar_url });
       }
     });
 
