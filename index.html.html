@@ -91,12 +91,47 @@
   .dash-composer-input { flex: 1; border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.75rem; font-family: inherit; font-size: 0.95rem; color: var(--ink); background: var(--bg); min-height: 42px; resize: none; outline: none; cursor: text; }
   .dash-composer-input:focus { border-color: var(--chamomile); background: var(--cream); }
   .dash-composer-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); }
+  .dash-action-group { display: flex; gap: 0.5rem; align-items: center; }
+  .dash-icon-btn { background: none; border: none; color: var(--ink-soft); cursor: pointer; padding: 0.3rem; border-radius: 0.3rem; display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; }
+  .dash-icon-btn:hover { background: var(--bg); color: var(--ink); }
+  .dash-icon-btn svg { width: 18px; height: 18px; }
   .dash-toggle-advanced { font-size: 0.75rem; color: var(--ink-soft); cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 0.3rem; font-family: inherit; }
   .dash-toggle-advanced:hover { color: var(--ink); }
   .dash-advanced-area { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); }
   .dash-advanced-area.show { display: block; }
+  .dash-img-preview { position: relative; margin-top: 0.75rem; display: none; }
+  .dash-img-preview.show { display: block; }
+  .dash-img-preview img { max-width: 100%; max-height: 200px; border-radius: 0.4rem; }
+  .dash-img-preview .remove-img-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 1rem; line-height: 1; }
+  
   .dash-post { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }
   .dash-post-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .dash-post-content { margin-bottom: 1rem; }
+  .dash-post-content img.post-image { max-width: 100%; border-radius: 0.5rem; margin-top: 0.75rem; }
+  
+  .post-actions { display: flex; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); flex-wrap: wrap; }
+  .post-action-btn { display: flex; align-items: center; gap: 0.35rem; background: none; border: none; cursor: pointer; color: var(--ink-soft); font-size: 0.85rem; padding: 0.4rem 0.6rem; border-radius: 0.3rem; transition: all 0.2s; }
+  .post-action-btn:hover { background: var(--bg); color: var(--ink); }
+  .post-action-btn.active { color: var(--chamomile-deep); font-weight: 500; }
+  .post-action-btn svg { width: 16px; height: 16px; }
+  .post-action-btn .count { font-size: 0.8rem; }
+  
+  .embedded-post { border: 1px solid var(--line); border-radius: 0.5rem; padding: 1rem; margin-top: 0.75rem; background: var(--bg); }
+  .embedded-post-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--ink-soft); }
+  
+  .comment-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); display: none; }
+  .comment-section.show { display: block; }
+  .comment-item { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .comment-item-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; background: var(--chamomile-soft); flex-shrink: 0; border: 1px solid var(--line); cursor: pointer; }
+  .comment-item-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .comment-item-avatar .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; color: var(--chamomile-deep); font-size: 0.8rem; font-weight: 500; }
+  .comment-item-body { flex: 1; background: var(--bg); padding: 0.5rem 0.75rem; border-radius: 0.4rem; }
+  .comment-item-author { font-size: 0.8rem; font-weight: 500; color: var(--ink); cursor: pointer; }
+  .comment-item-content { font-size: 0.85rem; color: var(--ink); margin-top: 0.15rem; }
+  .comment-input-area { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+  .comment-input-area input { flex: 1; border: 1px solid var(--line); border-radius: 0.4rem; padding: 0.5rem; font-family: inherit; font-size: 0.85rem; background: var(--bg); outline: none; }
+  .comment-input-area input:focus { border-color: var(--chamomile); }
+  .comment-input-area button { background: var(--ink); color: var(--cream); border: none; border-radius: 0.4rem; padding: 0 0.85rem; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
 
   /* FRIENDS LIST */
   .friends-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
@@ -244,6 +279,7 @@
   let previousView = null;
   let previousTopicId = null;
   let notifInterval = null;
+  let pendingPostImage = null;
 
   function sanitizeHTML(html) {
     if (!html) return '';
@@ -602,7 +638,12 @@
     const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
     const friendIds = [...(f1||[]).map(f => f.addressee_id), ...(f2||[]).map(f => f.requester_id), profile.id];
 
-    const { data: posts, error } = await db.from('posts').select('*, profiles(name, avatar_url)').in('user_id', friendIds).order('created_at', { ascending: false }).limit(50);
+    const { data: posts, error } = await db.from('posts')
+      .select('*, profiles(name, avatar_url), reactions(type, user_id), comments(id, content, created_at, user_id, profiles(name, avatar_url)), parent_post:posts!parent_post_id(id, content, image_url, created_at, user_id, profiles(name, avatar_url))')
+      .in('user_id', friendIds)
+      .order('created_at', { ascending: false })
+      .limit(50);
+      
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
 
     const initial = profile.name.charAt(0).toUpperCase();
@@ -614,17 +655,27 @@
           <div class="dash-composer-avatar">${avatarHTML}</div>
           <div class="dash-composer-input" id="dashSimpleInput" contenteditable="true" data-placeholder="O que você está pensando?"></div>
         </div>
+        <div class="dash-img-preview" id="dashImgPreviewWrap">
+          <img id="dashImgPreview" src="" alt="Pré-visualização">
+          <button class="remove-img-btn" id="dashRemoveImgBtn">×</button>
+        </div>
         <div class="dash-composer-actions">
-          <button class="dash-toggle-advanced" id="dashToggleAdvanced">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            Opções avançadas (HTML5)
-          </button>
+          <div class="dash-action-group">
+            <button class="dash-icon-btn" id="dashImageBtn" title="Adicionar imagem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <button class="dash-toggle-advanced" id="dashToggleAdvanced">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              Opções avançadas (HTML5)
+            </button>
+          </div>
           <button class="btn btn-primary" id="dashPostBtn" style="width:auto;">Publicar</button>
         </div>
         <div class="dash-advanced-area" id="dashAdvancedArea">
           <div class="toolbar" id="dashToolbar"><button class="tool-btn" data-cmd="bold" type="button"><b>B</b></button><button class="tool-btn" data-cmd="italic" type="button"><i>I</i></button><button class="tool-btn" data-cmd="underline" type="button"><u>U</u></button><div class="tool-divider"></div><button class="tool-btn" data-cmd="formatBlock" data-val="h2" type="button">Título</button><button class="tool-btn" data-cmd="formatBlock" data-val="p" type="button">Texto</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="justifyLeft" type="button">⬅</button><button class="tool-btn" data-cmd="justifyCenter" type="button">⬌</button><button class="tool-btn" data-cmd="justifyRight" type="button">➡</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="insertUnorderedList" type="button">• Lista</button><button class="tool-btn" data-cmd="createLink" type="button">🔗 Link</button></div>
           <div class="composer-editor" id="dashAdvancedInput" contenteditable="true" data-placeholder="Escreva em HTML5..."></div>
         </div>
+        <input type="file" id="dashImageInput" accept="image/*" style="display:none">
       </div>
       <div id="dashFeed"></div>
     `;
@@ -633,6 +684,25 @@
     const advancedInput = document.getElementById('dashAdvancedInput');
     const advancedArea = document.getElementById('dashAdvancedArea');
     const toolbar = document.getElementById('dashToolbar');
+    const imgInput = document.getElementById('dashImageInput');
+    const imgPreviewWrap = document.getElementById('dashImgPreviewWrap');
+    const imgPreviewEl = document.getElementById('dashImgPreview');
+
+    document.getElementById('dashImageBtn').addEventListener('click', () => imgInput.click());
+    imgInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      try {
+        const blob = await processGalleryImage(file);
+        pendingPostImage = blob;
+        imgPreviewEl.src = URL.createObjectURL(blob);
+        imgPreviewWrap.classList.add('show');
+      } catch(err) { toast(err, 'error'); }
+    });
+    document.getElementById('dashRemoveImgBtn').addEventListener('click', () => {
+      pendingPostImage = null;
+      imgPreviewWrap.classList.remove('show');
+      imgInput.value = '';
+    });
 
     document.getElementById('dashToggleAdvanced').addEventListener('click', () => {
       const isShown = advancedArea.classList.toggle('show');
@@ -656,9 +726,17 @@
 
     document.getElementById('dashPostBtn').addEventListener('click', async () => {
       const content = advancedArea.classList.contains('show') ? advancedInput.innerHTML : simpleInput.innerHTML;
-      if (!content.trim() || content === '<br>') { toast('Escreva algo antes.', 'error'); return; }
-      await db.from('posts').insert([{ user_id: profile.id, content }]);
+      if ((!content.trim() || content === '<br>') && !pendingPostImage) { toast('Escreva algo ou adicione uma imagem.', 'error'); return; }
+      
+      let imageUrl = null;
+      if (pendingPostImage) {
+        const path = `post_${profile.id}_${Date.now()}.jpg`;
+        imageUrl = await uploadFile('gallery', path, pendingPostImage);
+      }
+      
+      await db.from('posts').insert([{ user_id: profile.id, content, image_url: imageUrl }]);
       toast('Postado!', 'success');
+      pendingPostImage = null;
       render();
     });
 
@@ -666,25 +744,143 @@
     if (!posts || posts.length === 0) {
       feedEl.innerHTML = `<div class="empty-state"><h3>Seu feed está vazio</h3><p>Faça sua primeira postagem ou adicione amigos para ver o que eles estão compartilhando.</p></div>`;
     } else {
-      feedEl.innerHTML = posts.map(p => {
-        const pInitial = p.profiles?.name?.charAt(0).toUpperCase() || '?';
-        const pAvatar = p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
-        return `
-          <div class="dash-post">
-            <div class="dash-post-header">
-              <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
-              <div style="flex:1;">
-                <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(p.profiles?.name || 'Anônimo')}</div>
-                <div class="message-time">${formatDate(p.created_at)}</div>
-              </div>
-              ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
-            </div>
-            <div class="message-body" style="padding-left:0;">${sanitizeHTML(p.content)}</div>
-          </div>
-        `;
-      }).join('');
+      feedEl.innerHTML = posts.map(p => renderPostHTML(p)).join('');
+      
+      document.querySelectorAll('.post-action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const postId = btn.dataset.postid;
+          const action = btn.dataset.action;
+          if (action === 'like' || action === 'dislike' || action === 'fire') {
+            window.toggleReaction(postId, action);
+          } else if (action === 'comment') {
+            const section = document.querySelector(`.comment-section[data-postid="${postId}"]`);
+            if (section) section.classList.toggle('show');
+          } else if (action === 'repost') {
+            window.repost(postId);
+          }
+        });
+      });
+
+      document.querySelectorAll('.comment-input-area button').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const postId = btn.dataset.postid;
+          const input = document.querySelector(`.comment-input-area input[data-postid="${postId}"]`);
+          if (input && input.value.trim()) {
+            await db.from('comments').insert([{ post_id: postId, user_id: profile.id, content: input.value.trim() }]);
+            toast('Comentário adicionado!', 'success');
+            render();
+          }
+        });
+      });
     }
   }
+
+  function renderPostHTML(p) {
+    const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
+    const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
+    const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
+    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === profile.id) : false;
+    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === profile.id) : false;
+    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === profile.id) : false;
+
+    const pInitial = p.profiles?.name?.charAt(0).toUpperCase() || '?';
+    const pAvatar = p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
+
+    let contentHTML = '';
+    if (p.parent_post) {
+      const op = p.parent_post;
+      const opInitial = op.profiles?.name?.charAt(0).toUpperCase() || '?';
+      const opAvatar = op.profiles?.avatar_url ? `<img src="${op.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
+      contentHTML = `
+        <div class="dash-post-content">
+          <div class="embedded-post">
+            <div class="embedded-post-header">
+              <div class="message-avatar" style="width:24px;height:24px;" onclick="viewProfile('${op.user_id}')">${opAvatar}</div>
+              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(op.profiles?.name || 'Anônimo')}</span>
+            </div>
+            <div class="message-body" style="padding-left:0; margin-bottom:0.5rem;">${sanitizeHTML(op.content)}</div>
+            ${op.image_url ? `<img src="${op.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
+          </div>
+        </div>
+      `;
+    } else {
+      contentHTML = `
+        <div class="dash-post-content">
+          ${p.content ? `<div class="message-body" style="padding-left:0;">${sanitizeHTML(p.content)}</div>` : ''}
+          ${p.image_url ? `<img src="${p.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
+        </div>
+      `;
+    }
+
+    const commentsHTML = (p.comments || []).map(c => `
+      <div class="comment-item">
+        <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${c.profiles?.avatar_url ? `<img src="${c.profiles.avatar_url}">` : `<div class="ph">${c.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+        <div class="comment-item-body">
+          <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(c.profiles?.name || 'Anônimo')}</div>
+          <div class="comment-item-content">${sanitizeHTML(c.content)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="dash-post">
+        <div class="dash-post-header">
+          <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
+          <div style="flex:1;">
+            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(p.profiles?.name || 'Anônimo')}</div>
+            <div class="message-time">${formatDate(p.created_at)}</div>
+          </div>
+          ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
+        </div>
+        ${contentHTML}
+        <div class="post-actions">
+          <button class="post-action-btn ${userLiked ? 'active' : ''}" data-postid="${p.id}" data-action="like">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+            <span class="count">${likes}</span>
+          </button>
+          <button class="post-action-btn ${userDisliked ? 'active' : ''}" data-postid="${p.id}" data-action="dislike">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>
+            <span class="count">${dislikes}</span>
+          </button>
+          <button class="post-action-btn ${userFired ? 'active' : ''}" data-postid="${p.id}" data-action="fire" style="${userFired ? 'color:#e76f51;' : ''}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+            <span class="count">${fires}</span>
+          </button>
+          <button class="post-action-btn" data-postid="${p.id}" data-action="comment">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </button>
+          <button class="post-action-btn" data-postid="${p.id}" data-action="repost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          </button>
+        </div>
+        <div class="comment-section" data-postid="${p.id}">
+          ${commentsHTML}
+          <div class="comment-input-area">
+            <input type="text" placeholder="Escreva um comentário..." data-postid="${p.id}">
+            <button data-postid="${p.id}">Enviar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  window.toggleReaction = async (postId, type) => {
+    const { data: existing } = await db.from('reactions').select('*').eq('post_id', postId).eq('user_id', profile.id).eq('type', type).maybeSingle();
+    if (existing) {
+      await db.from('reactions').delete().eq('id', existing.id);
+    } else {
+      await db.from('reactions').insert([{ post_id: postId, user_id: profile.id, type }]);
+    }
+    render();
+  };
+
+  window.repost = async (postId) => {
+    await db.from('posts').insert([{ user_id: profile.id, content: '', parent_post_id: postId }]);
+    toast('Repostado com sucesso!', 'success');
+    render();
+  };
 
   window.deletePost = async (postId) => {
     await db.from('posts').delete().eq('id', postId);
@@ -731,7 +927,6 @@
     const avatarHTML = targetProfile.avatar_url ? `<img src="${targetProfile.avatar_url}" alt="${escapeHtml(targetProfile.name)}">` : `<div class="profile-avatar-placeholder">${initial}</div>`;
     const bioHTML = targetProfile.bio ? `<div class="profile-bio">${sanitizeHTML(targetProfile.bio)}</div>` : `<div class="profile-bio empty">Sem bio ainda.</div>`;
     
-    // Fetch Facetas
     const { data: facetas } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     const facetasGrid = (facetas || []).map(f => `
       <div class="gallery-card">
@@ -856,7 +1051,6 @@
       ...(f2||[]).map(f => ({ id: f.requester_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at }))
     ];
 
-    // Pending requests
     const { data: pending } = await db.from('friends').select('*, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'pending');
 
     let pendingHTML = '';
