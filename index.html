@@ -632,19 +632,50 @@
     }
   }
 
-  /* ---------- DASHBOARD (INÍCIO) ---------- */
+    /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
     const { data: f1 } = await db.from('friends').select('addressee_id').eq('requester_id', profile.id).eq('status', 'accepted');
     const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
     const friendIds = [...(f1||[]).map(f => f.addressee_id), ...(f2||[]).map(f => f.requester_id), profile.id];
 
+    // 1. Busca os posts SEM tentar cruzar com profiles
     const { data: posts, error } = await db.from('posts')
-      .select('*, author:profiles!posts_user_id_fkey(name, avatar_url), reactions(type, user_id), comments(id, content, created_at, user_id, commenter:profiles!comments_user_id_fkey(name, avatar_url)), parent_post:posts!parent_post_id(id, content, image_url, created_at, user_id, parent_author:profiles!posts_user_id_fkey(name, avatar_url))')
+      .select('*, reactions(type, user_id), comments(*), parent_post:posts!parent_post_id(*)')
       .in('user_id', friendIds)
       .order('created_at', { ascending: false })
       .limit(50);
       
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
+
+    // 2. Busca os perfis de todos os autores dos posts e comentários
+    let userIds = new Set();
+    posts.forEach(p => {
+      userIds.add(p.user_id);
+      if (p.parent_post) userIds.add(p.parent_post.user_id);
+      if (p.comments) p.comments.forEach(c => userIds.add(c.user_id));
+    });
+    
+    const { data: profilesData } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(userIds));
+    const profilesMap = {};
+    (profilesData || []).forEach(p => profilesMap[p.id] = p);
+
+    // 3. Juntando os dados manualmente
+    posts.forEach(p => {
+      p.author = profilesMap[p.user_id] || { name: 'Anônimo', avatar_url: null };
+      if (!p.author.name && p.user_id === profile.id) p.author.name = profile.name;
+      
+      if (p.parent_post) {
+        p.parent_post.author = profilesMap[p.parent_post.user_id] || { name: 'Anônimo', avatar_url: null };
+        if (!p.parent_post.author.name && p.parent_post.user_id === profile.id) p.parent_post.author.name = profile.name;
+      }
+      
+      if (p.comments) {
+        p.comments.forEach(c => {
+          c.commenter = profilesMap[c.user_id] || { name: 'Anônimo', avatar_url: null };
+          if (!c.commenter.name && c.user_id === profile.id) c.commenter.name = profile.name;
+        });
+      }
+    });
 
     const initial = profile.name.charAt(0).toUpperCase();
     const avatarHTML = profile.avatar_url ? `<img src="${profile.avatar_url}" alt="">` : `<div class="message-avatar-placeholder">${initial}</div>`;
