@@ -82,6 +82,31 @@
   .forum-detail { background: var(--cream); border: 1px solid var(--line); border-radius: 1rem; padding: 2rem; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; } .forum-detail-header { border-bottom: 1px solid var(--line); padding-bottom: 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; } .forum-detail-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 500; letter-spacing: -0.01em; overflow-wrap: break-word; word-break: break-word; } .topic-code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 0.15em; margin-top: 0.3rem; } .back-btn { background: none; border: 1px solid var(--line); padding: 0.5rem 1rem; border-radius: 0.4rem; cursor: pointer; font-family: inherit; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); transition: all 0.3s var(--ease-quiet); white-space: nowrap; flex-shrink: 0; } .back-btn:hover { color: var(--ink); border-color: var(--ink); } .delete-btn { color: var(--danger); border-color: var(--danger); } .delete-btn:hover { background: var(--danger); color: var(--cream); border-color: var(--danger); }
   .message { padding: 1.25rem 0; border-bottom: 1px solid var(--line-soft); } .message:last-of-type { border-bottom: none; } .message-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; } .message-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--chamomile-soft); overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--line); cursor: pointer; } .message-avatar img { width: 100%; height: 100%; object-fit: cover; } .message-avatar-placeholder { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--chamomile-deep); font-weight: 500; } .message-author { font-weight: 500; font-size: 0.9rem; color: var(--ink); overflow-wrap: break-word; word-break: break-word; cursor: pointer; } .message-author:hover { text-decoration: underline; color: var(--chamomile-deep); } .message-time { font-size: 0.7rem; color: var(--ink-faint); letter-spacing: 0.1em; } .message-body { font-size: 0.95rem; line-height: 1.75; color: var(--ink); padding-left: 54px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; max-width: 100%; } .message-body h1, .message-body h2, .message-body h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; margin: 0.6rem 0 0.3rem; } .message-body h1 { font-size: 1.6rem; } .message-body h2 { font-size: 1.35rem; } .message-body h3 { font-size: 1.15rem; } .message-body p { margin: 0.4rem 0; } .message-body a { color: var(--chamomile-deep); word-break: break-all; } .message-body img { max-width: 100%; height: auto; border-radius: 0.4rem; margin: 0.5rem 0; } .message-body ul, .message-body ol { padding-left: 1.5rem; margin: 0.4rem 0; } .message-body blockquote { border-left: 3px solid var(--chamomile); padding-left: 1rem; color: var(--ink-soft); margin: 0.6rem 0; font-style: italic; overflow-wrap: break-word; word-break: break-word; } .message-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: var(--bg); padding: 0.1rem 0.35rem; border-radius: 0.2rem; word-break: break-all; } .message-body pre { background: var(--bg); padding: 0.75rem; border-radius: 0.4rem; overflow-x: auto; max-width: 100%; margin: 0.5rem 0; } .message-body pre code { padding: 0; background: none; word-break: normal; } .message-body table { max-width: 100%; display: block; overflow-x: auto; } .message-body div { max-width: 100%; overflow-wrap: break-word; word-break: break-word; } .message-body center { max-width: 100%; overflow-wrap: break-word; word-break: break-word; display: block; }
   .composer { margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1.5rem; } .composer-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.85rem; gap: 1rem; } .composer-hint { font-size: 0.72rem; color: var(--ink-faint); letter-spacing: 0.05em; flex: 1; }
+  
+  /* DASHBOARD TUMBLR-LIKE */
+  .dash-composer { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .dash-composer-top { display: flex; gap: 1rem; align-items: flex-start; }
+  .dash-composer-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: var(--chamomile-soft); flex-shrink: 0; border: 1px solid var(--line); }
+  .dash-composer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .dash-composer-input { flex: 1; border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.75rem; font-family: inherit; font-size: 0.95rem; color: var(--ink); background: var(--bg); min-height: 42px; resize: none; outline: none; cursor: text; }
+  .dash-composer-input:focus { border-color: var(--chamomile); background: var(--cream); }
+  .dash-composer-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); }
+  .dash-toggle-advanced { font-size: 0.75rem; color: var(--ink-soft); cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 0.3rem; font-family: inherit; }
+  .dash-toggle-advanced:hover { color: var(--ink); }
+  .dash-advanced-area { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); }
+  .dash-advanced-area.show { display: block; }
+  .dash-post { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .dash-post-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+
+  /* FRIENDS LIST */
+  .friends-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .friend-card { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s var(--ease-quiet); }
+  .friend-card:hover { border-color: var(--chamomile); transform: translateY(-2px); }
+  .friend-avatar { width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: var(--chamomile-soft); border: 1px solid var(--line); }
+  .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .friend-name { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+  .friend-since { font-size: 0.65rem; color: var(--ink-faint); letter-spacing: 0.1em; text-transform: uppercase; }
+
   .empty-state { text-align: center; padding: 4rem 2rem; color: var(--ink-soft); } .empty-state h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; } .empty-state p { font-size: 0.9rem; max-width: 380px; margin: 0 auto; line-height: 1.7; }
   .modal-overlay { position: fixed; inset: 0; background: rgba(42, 40, 35, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 2rem; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); } .modal-overlay.show { display: flex; } .modal { background: var(--cream); border-radius: 1rem; padding: 2rem; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.4s var(--ease-quiet); } @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; } .modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 500; letter-spacing: -0.01em; } .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink-soft); line-height: 1; padding: 0; width: 28px; height: 28px; } .modal-close:hover { color: var(--ink); }
   .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink); color: var(--cream); padding: 0.9rem 1.4rem; border-radius: 0.5rem; font-size: 0.85rem; box-shadow: 0 14px 35px -10px rgba(0,0,0,0.3); transform: translateY(100px); opacity: 0; transition: all 0.4s var(--ease-quiet); z-index: 2000; max-width: 320px; } .toast.show { transform: translateY(0); opacity: 1; } .toast.error { background: var(--danger); } .toast.success { background: #5a7a5a; }
@@ -167,6 +192,10 @@
         <button class="nav-item active" data-view="inicio">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           Início
+        </button>
+        <button class="nav-item" data-view="perfil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Perfil
         </button>
         <button class="nav-item" data-view="amigos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
@@ -384,8 +413,8 @@
     }
     const listHTML = window.pendingRequests.map(req => `
       <div style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem 0; border-bottom:1px solid var(--line-soft);">
-        <div class="message-avatar" style="width:36px;height:36px;">${req.profiles?.avatar_url ? `<img src="${req.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${req.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-        <div style="flex:1;"><div style="font-size:0.9rem; font-weight:500;">${req.profiles?.name || 'Usuário'}</div><div style="font-size:0.75rem; color:var(--ink-soft);">quer ser seu amigo.</div></div>
+        <div class="message-avatar" style="width:36px;height:36px;cursor:pointer;" onclick="viewProfile('${req.requester_id}')">${req.profiles?.avatar_url ? `<img src="${req.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${req.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+        <div style="flex:1;cursor:pointer;" onclick="viewProfile('${req.requester_id}')"><div style="font-size:0.9rem; font-weight:500;">${req.profiles?.name || 'Usuário'}</div><div style="font-size:0.75rem; color:var(--ink-soft);">quer ser seu amigo.</div></div>
         <button class="btn btn-primary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="acceptFriend('${req.id}')">Aceitar</button>
       </div>
     `).join('');
@@ -408,7 +437,7 @@
   function showApp() { 
     loginScreen.style.display = 'none'; appEl.classList.add('show'); renderUserMini(); navigate('inicio'); 
     if (notifInterval) clearInterval(notifInterval);
-    notifInterval = setInterval(loadNotifications, 15000); // Checa notificações a cada 15s
+    notifInterval = setInterval(loadNotifications, 15000); 
   }
   function renderUserMini() {
     if (!profile) return;
@@ -416,6 +445,8 @@
     const av = document.getElementById('userMiniAvatar');
     if (profile.avatar_url) av.innerHTML = `<img src="${profile.avatar_url}" alt="">`;
     else av.innerHTML = '';
+    av.onclick = () => { viewingProfileId = null; navigate('perfil'); };
+    document.getElementById('userMiniName').onclick = () => { viewingProfileId = null; navigate('perfil'); };
   }
 
   document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -512,7 +543,7 @@
     document.getElementById('searchPanel').classList.remove('show');
     document.getElementById('searchInput').value = '';
     document.getElementById('searchResults').innerHTML = '';
-    currentView = 'inicio';
+    currentView = 'perfil';
     document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
     document.querySelectorAll('.top-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === currentView));
     render();
@@ -550,13 +581,14 @@
     }
     try {
       switch(currentView) {
-        case 'inicio': await renderProfile(); break;
-        case 'amigos': renderAmigos(); break;
+        case 'inicio': await renderDashboard(); break;
+        case 'perfil': await renderProfile(); break;
+        case 'amigos': await renderAmigos(); break;
         case 'jogos': renderJogos(); break;
         case 'rabisco': await renderRabisco(); break;
         case 'realismo': await renderRealismo(); break;
         case 'facetas': await renderFacetas(); break;
-        default: await renderProfile();
+        default: await renderDashboard();
       }
     } catch (err) {
       console.error(err);
@@ -564,6 +596,103 @@
     }
   }
 
+  /* ---------- DASHBOARD (INÍCIO) ---------- */
+  async function renderDashboard() {
+    const { data: f1 } = await db.from('friends').select('addressee_id').eq('requester_id', profile.id).eq('status', 'accepted');
+    const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
+    const friendIds = [...(f1||[]).map(f => f.addressee_id), ...(f2||[]).map(f => f.requester_id), profile.id];
+
+    const { data: posts, error } = await db.from('posts').select('*, profiles(name, avatar_url)').in('user_id', friendIds).order('created_at', { ascending: false }).limit(50);
+    if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
+
+    const initial = profile.name.charAt(0).toUpperCase();
+    const avatarHTML = profile.avatar_url ? `<img src="${profile.avatar_url}" alt="">` : `<div class="message-avatar-placeholder">${initial}</div>`;
+
+    mainContent.innerHTML = `
+      <div class="dash-composer">
+        <div class="dash-composer-top">
+          <div class="dash-composer-avatar">${avatarHTML}</div>
+          <div class="dash-composer-input" id="dashSimpleInput" contenteditable="true" data-placeholder="O que você está pensando?"></div>
+        </div>
+        <div class="dash-composer-actions">
+          <button class="dash-toggle-advanced" id="dashToggleAdvanced">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            Opções avançadas (HTML5)
+          </button>
+          <button class="btn btn-primary" id="dashPostBtn" style="width:auto;">Publicar</button>
+        </div>
+        <div class="dash-advanced-area" id="dashAdvancedArea">
+          <div class="toolbar" id="dashToolbar"><button class="tool-btn" data-cmd="bold" type="button"><b>B</b></button><button class="tool-btn" data-cmd="italic" type="button"><i>I</i></button><button class="tool-btn" data-cmd="underline" type="button"><u>U</u></button><div class="tool-divider"></div><button class="tool-btn" data-cmd="formatBlock" data-val="h2" type="button">Título</button><button class="tool-btn" data-cmd="formatBlock" data-val="p" type="button">Texto</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="justifyLeft" type="button">⬅</button><button class="tool-btn" data-cmd="justifyCenter" type="button">⬌</button><button class="tool-btn" data-cmd="justifyRight" type="button">➡</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="insertUnorderedList" type="button">• Lista</button><button class="tool-btn" data-cmd="createLink" type="button">🔗 Link</button></div>
+          <div class="composer-editor" id="dashAdvancedInput" contenteditable="true" data-placeholder="Escreva em HTML5..."></div>
+        </div>
+      </div>
+      <div id="dashFeed"></div>
+    `;
+
+    const simpleInput = document.getElementById('dashSimpleInput');
+    const advancedInput = document.getElementById('dashAdvancedInput');
+    const advancedArea = document.getElementById('dashAdvancedArea');
+    const toolbar = document.getElementById('dashToolbar');
+
+    document.getElementById('dashToggleAdvanced').addEventListener('click', () => {
+      const isShown = advancedArea.classList.toggle('show');
+      if (isShown) {
+        advancedInput.innerHTML = simpleInput.innerHTML;
+        simpleInput.style.display = 'none';
+      } else {
+        simpleInput.innerHTML = advancedInput.innerHTML;
+        simpleInput.style.display = 'block';
+      }
+    });
+
+    toolbar.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); const cmd = btn.dataset.cmd; const val = btn.dataset.val; advancedInput.focus();
+        if (cmd === 'createLink') { const url = prompt('Endereço do link:', 'https://'); if (url) document.execCommand('createLink', false, url); }
+        else if (cmd === 'formatBlock') { document.execCommand('formatBlock', false, val); }
+        else { document.execCommand(cmd, false, null); }
+      });
+    });
+
+    document.getElementById('dashPostBtn').addEventListener('click', async () => {
+      const content = advancedArea.classList.contains('show') ? advancedInput.innerHTML : simpleInput.innerHTML;
+      if (!content.trim() || content === '<br>') { toast('Escreva algo antes.', 'error'); return; }
+      await db.from('posts').insert([{ user_id: profile.id, content }]);
+      toast('Postado!', 'success');
+      render();
+    });
+
+    const feedEl = document.getElementById('dashFeed');
+    if (!posts || posts.length === 0) {
+      feedEl.innerHTML = `<div class="empty-state"><h3>Seu feed está vazio</h3><p>Faça sua primeira postagem ou adicione amigos para ver o que eles estão compartilhando.</p></div>`;
+    } else {
+      feedEl.innerHTML = posts.map(p => {
+        const pInitial = p.profiles?.name?.charAt(0).toUpperCase() || '?';
+        const pAvatar = p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
+        return `
+          <div class="dash-post">
+            <div class="dash-post-header">
+              <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
+              <div style="flex:1;">
+                <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(p.profiles?.name || 'Anônimo')}</div>
+                <div class="message-time">${formatDate(p.created_at)}</div>
+              </div>
+              ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
+            </div>
+            <div class="message-body" style="padding-left:0;">${sanitizeHTML(p.content)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  window.deletePost = async (postId) => {
+    await db.from('posts').delete().eq('id', postId);
+    toast('Postagem removida.', 'success');
+    render();
+  };
+
+  /* ---------- PERFIL ---------- */
   async function renderProfile() {
     const targetId = viewingProfileId || profile.id;
     const isOwn = targetId === profile.id;
@@ -577,7 +706,6 @@
     } else {
       headerActions = `<button class="btn btn-secondary" id="backFromProfileBtn" style="width:auto; margin-right: 0.5rem;">← Voltar</button>`;
       
-      // Consulta segura em duas etapas para evitar erres de OR no Supabase
       let friendship = null;
       const { data: f1 } = await db.from('friends').select('*').eq('requester_id', profile.id).eq('addressee_id', targetId).maybeSingle();
       if (f1) friendship = f1;
@@ -603,9 +731,23 @@
     const avatarHTML = targetProfile.avatar_url ? `<img src="${targetProfile.avatar_url}" alt="${escapeHtml(targetProfile.name)}">` : `<div class="profile-avatar-placeholder">${initial}</div>`;
     const bioHTML = targetProfile.bio ? `<div class="profile-bio">${sanitizeHTML(targetProfile.bio)}</div>` : `<div class="profile-bio empty">Sem bio ainda.</div>`;
     
+    // Fetch Facetas
+    const { data: facetas } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
+    const facetasGrid = (facetas || []).map(f => `
+      <div class="gallery-card">
+        <div class="gallery-card-image">${f.image_url ? `<img src="${f.image_url}" alt="${escapeAttr(f.name)}">` : `<div class="gallery-card-image-placeholder">${f.name.charAt(0).toUpperCase()}</div>`}</div>
+        <div class="gallery-card-info"><div class="gallery-card-name">${escapeHtml(f.name)}</div><div class="gallery-card-meta">personagem</div></div>
+      </div>
+    `).join('');
+
     mainContent.innerHTML = `
       <div class="view-header"><div><div class="view-title">${isOwn ? 'Seu perfil' : 'Perfil'}</div></div><div style="display:flex; justify-content:flex-end;">${headerActions}</div></div>
       <div class="profile-card"><div class="profile-top"><div class="profile-avatar">${avatarHTML}</div><div class="profile-info"><h2>${escapeHtml(targetProfile.name)}</h2><div class="meta">membro desde ${formatDate(targetProfile.created_at)}</div></div></div>${bioHTML}</div>
+      
+      <div style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 500;">Personagens (Facetas)</div>
+      <div class="gallery-grid">
+        ${facetasGrid || '<div class="empty-state" style="grid-column: 1 / -1;"><p>Nenhum personagem criado.</p></div>'}
+      </div>
     `;
     
     if (isOwn) {
@@ -704,9 +846,47 @@
     document.querySelector('.modal-close').addEventListener('click', closeModal);
   }
 
-  function renderAmigos() {
-    mainContent.innerHTML = `<div class="view-header"><div class="view-title">Amigos</div><div class="view-subtitle">em breve</div></div><div class="empty-state"><h3>Calma, logo virá</h3><p>A lista de amigos ainda está sendo desenhada. Por enquanto, use a busca na barra lateral.</p></div>`;
+  /* ---------- AMIGOS ---------- */
+  async function renderAmigos() {
+    const { data: f1 } = await db.from('friends').select('*, addressee_id, created_at, profiles:addressee_id(name, avatar_url)').eq('requester_id', profile.id).eq('status', 'accepted');
+    const { data: f2 } = await db.from('friends').select('*, requester_id, created_at, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'accepted');
+    
+    const friends = [
+      ...(f1||[]).map(f => ({ id: f.addressee_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at })),
+      ...(f2||[]).map(f => ({ id: f.requester_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at }))
+    ];
+
+    // Pending requests
+    const { data: pending } = await db.from('friends').select('*, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'pending');
+
+    let pendingHTML = '';
+    if (pending && pending.length > 0) {
+      pendingHTML = `<div style="margin-bottom: 2rem;"><div class="view-subtitle" style="margin-bottom:1rem;">Solicitações pendentes</div>${pending.map(p => `
+        <div class="friend-card" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;" onclick="viewProfile('${p.requester_id}')">
+            <div class="friend-avatar">${p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${p.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+            <div class="friend-name">${p.profiles?.name || 'Usuário'}</div>
+          </div>
+          <button class="btn btn-primary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="acceptFriend('${p.id}')">Aceitar</button>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    const friendsGrid = friends.map(f => `
+      <div class="friend-card" onclick="viewProfile('${f.id}')">
+        <div class="friend-avatar">${f.avatar_url ? `<img src="${f.avatar_url}">` : `<div class="message-avatar-placeholder">${f.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+        <div class="friend-name">${escapeHtml(f.name || 'Usuário')}</div>
+        <div class="friend-since">Amigos desde ${formatDate(f.created_at)}</div>
+      </div>
+    `).join('');
+
+    mainContent.innerHTML = `
+      <div class="view-header"><div class="view-title">Amigos</div><div class="view-subtitle">${friends.length} ${friends.length === 1 ? 'amigo' : 'amigos'}</div></div>
+      ${pendingHTML}
+      ${friends.length === 0 ? `<div class="empty-state"><h3>Você ainda não tem amigos</h3><p>Use a busca na barra lateral para encontrar pessoas e adicionar elas como amigas.</p></div>` : `<div class="friends-list">${friendsGrid}</div>`}
+    `;
   }
+
   function renderJogos() {
     mainContent.innerHTML = `<div class="view-header"><div class="view-title">Jogos</div><div class="view-subtitle">em breve</div></div><div class="empty-state"><h3>Panela no fogo</h3><p>Os jogos estão infundindo. Volte em breve para jogar uma partida enquanto o chá esfria.</p></div>`;
   }
@@ -812,6 +992,7 @@
     document.querySelector('.modal-close').addEventListener('click', closeModal);
   }
 
+  /* ---------- RABISCO ---------- */
   async function renderRabisco() {
     if (!profile) { mainContent.innerHTML = '<div class="loading-spinner">Carregando perfil...</div>'; return; }
     if (currentTopicId) return renderTopic();
