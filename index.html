@@ -659,7 +659,8 @@
     
     const profilesMap = {};
     if (userIds.size > 0) {
-      const { data: profilesData } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(userIds));
+      const { data: profilesData, error: profilesError } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(userIds));
+      if (profilesError) console.error('[Vokki] Falha ao buscar perfis (provável bloqueio de RLS no Supabase):', profilesError);
       (profilesData || []).forEach(p => profilesMap[p.id] = p);
     }
     
