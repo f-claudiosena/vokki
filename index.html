@@ -777,7 +777,7 @@
     }
   }
 
-    function renderPostHTML(p) {
+      function renderPostHTML(p) {
     const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
     const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
     const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
@@ -785,20 +785,25 @@
     const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === profile.id) : false;
     const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === profile.id) : false;
 
-    const pInitial = p.author?.name?.charAt(0).toUpperCase() || '?';
-    const pAvatar = p.author?.avatar_url ? `<img src="${p.author.avatar_url}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
+    // Pega o nome do autor. Se não achar (null), usa o nome de quem está logado como fallback
+    const authorName = p.author?.name || (p.user_id === profile.id ? profile.name : 'Anônimo');
+    const authorAvatar = p.author?.avatar_url || (p.user_id === profile.id ? profile.avatar_url : null);
+    const pInitial = authorName.charAt(0).toUpperCase();
+    const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
 
     let contentHTML = '';
     if (p.parent_post) {
       const op = p.parent_post;
-      const opInitial = op.parent_author?.name?.charAt(0).toUpperCase() || '?';
-      const opAvatar = op.parent_author?.avatar_url ? `<img src="${op.parent_author.avatar_url}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
+      const opName = op.parent_author?.name || (op.user_id === profile.id ? profile.name : 'Anônimo');
+      const opAvatarUrl = op.parent_author?.avatar_url || (op.user_id === profile.id ? profile.avatar_url : null);
+      const opInitial = opName.charAt(0).toUpperCase();
+      const opAvatar = opAvatarUrl ? `<img src="${opAvatarUrl}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
       contentHTML = `
         <div class="dash-post-content">
           <div class="embedded-post">
             <div class="embedded-post-header">
               <div class="message-avatar" style="width:24px;height:24px;" onclick="viewProfile('${op.user_id}')">${opAvatar}</div>
-              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(op.parent_author?.name || 'Anônimo')}</span>
+              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(opName)}</span>
             </div>
             <div class="message-body" style="padding-left:0; margin-bottom:0.5rem;">${sanitizeHTML(op.content)}</div>
             ${op.image_url ? `<img src="${op.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
@@ -814,22 +819,28 @@
       `;
     }
 
-    const commentsHTML = (p.comments || []).map(c => `
-      <div class="comment-item">
-        <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${c.commenter?.avatar_url ? `<img src="${c.commenter.avatar_url}">` : `<div class="ph">${c.commenter?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-        <div class="comment-item-body">
-          <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(c.commenter?.name || 'Anônimo')}</div>
-          <div class="comment-item-content">${sanitizeHTML(c.content)}</div>
+    const commentsHTML = (p.comments || []).map(c => {
+      const cName = c.commenter?.name || (c.user_id === profile.id ? profile.name : 'Anônimo');
+      const cAvatarUrl = c.commenter?.avatar_url || (c.user_id === profile.id ? profile.avatar_url : null);
+      const cInitial = cName.charAt(0).toUpperCase();
+      const cAvatar = cAvatarUrl ? `<img src="${cAvatarUrl}">` : `<div class="ph">${cInitial}</div>`;
+      return `
+        <div class="comment-item">
+          <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${cAvatar}</div>
+          <div class="comment-item-body">
+            <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(cName)}</div>
+            <div class="comment-item-content">${sanitizeHTML(c.content)}</div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     return `
       <div class="dash-post">
         <div class="dash-post-header">
           <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
           <div style="flex:1;">
-            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(p.author?.name || 'Anônimo')}</div>
+            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(authorName)}</div>
             <div class="message-time">${formatDate(p.created_at)}</div>
           </div>
           ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
