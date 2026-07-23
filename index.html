@@ -632,7 +632,7 @@
     }
   }
 
-    /* ---------- DASHBOARD (INÍCIO) ---------- */
+  /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
     const { data: f1 } = await db.from('friends').select('addressee_id').eq('requester_id', profile.id).eq('status', 'accepted');
     const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
@@ -777,25 +777,26 @@
     }
   }
 
-      function renderPostHTML(p) {
+  function renderPostHTML(p) {
     const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
     const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
     const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
-    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === profile.id) : false;
-    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === profile.id) : false;
-    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === profile.id) : false;
+    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === session.user.id) : false;
+    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === session.user.id) : false;
+    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === session.user.id) : false;
 
-    // Pega o nome do autor. Se não achar (null), usa o nome de quem está logado como fallback
-    const authorName = p.author?.name || (p.user_id === profile.id ? profile.name : 'Anônimo');
-    const authorAvatar = p.author?.avatar_url || (p.user_id === profile.id ? profile.avatar_url : null);
+    const authorObj = Array.isArray(p.author) ? p.author[0] : p.author;
+    const authorName = authorObj?.name || (p.user_id === session.user.id ? profile.name : 'Anônimo');
+    const authorAvatar = authorObj?.avatar_url || (p.user_id === session.user.id ? profile.avatar_url : null);
     const pInitial = authorName.charAt(0).toUpperCase();
     const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
 
     let contentHTML = '';
     if (p.parent_post) {
       const op = p.parent_post;
-      const opName = op.parent_author?.name || (op.user_id === profile.id ? profile.name : 'Anônimo');
-      const opAvatarUrl = op.parent_author?.avatar_url || (op.user_id === profile.id ? profile.avatar_url : null);
+      const opObj = Array.isArray(op.parent_author) ? op.parent_author[0] : op.parent_author;
+      const opName = opObj?.name || (op.user_id === session.user.id ? profile.name : 'Anônimo');
+      const opAvatarUrl = opObj?.avatar_url || (op.user_id === session.user.id ? profile.avatar_url : null);
       const opInitial = opName.charAt(0).toUpperCase();
       const opAvatar = opAvatarUrl ? `<img src="${opAvatarUrl}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
       contentHTML = `
@@ -820,8 +821,9 @@
     }
 
     const commentsHTML = (p.comments || []).map(c => {
-      const cName = c.commenter?.name || (c.user_id === profile.id ? profile.name : 'Anônimo');
-      const cAvatarUrl = c.commenter?.avatar_url || (c.user_id === profile.id ? profile.avatar_url : null);
+      const cObj = Array.isArray(c.commenter) ? c.commenter[0] : c.commenter;
+      const cName = cObj?.name || (c.user_id === session.user.id ? profile.name : 'Anônimo');
+      const cAvatarUrl = cObj?.avatar_url || (c.user_id === session.user.id ? profile.avatar_url : null);
       const cInitial = cName.charAt(0).toUpperCase();
       const cAvatar = cAvatarUrl ? `<img src="${cAvatarUrl}">` : `<div class="ph">${cInitial}</div>`;
       return `
@@ -843,7 +845,7 @@
             <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(authorName)}</div>
             <div class="message-time">${formatDate(p.created_at)}</div>
           </div>
-          ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
+          ${p.user_id === session.user.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
         </div>
         ${contentHTML}
         <div class="post-actions">
