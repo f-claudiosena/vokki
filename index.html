@@ -282,6 +282,13 @@
   let notifInterval = null;
   let pendingPostImage = null;
 
+  // Trava de segurança para IDs
+  function isValidUUID(str) {
+    if (!str) return false;
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return regex.test(str);
+  }
+
   function sanitizeHTML(html) {
     if (!html) return '';
     return String(html)
@@ -391,7 +398,7 @@
       }
     }
     
-    if (profile) {
+    if (profile && isValidUUID(profile.id)) {
       showApp();
     } else {
       if (window.location.hash.includes('access_token') || window.location.hash.includes('error')) {
@@ -417,7 +424,7 @@
         if (!profile || profile.id !== newSession.user.id) {
           await loadProfile();
         }
-        if (profile) showApp(); else showLogin();
+        if (profile && isValidUUID(profile.id)) showApp(); else showLogin();
       } else {
         session = null;
         profile = null;
@@ -427,7 +434,7 @@
   }
 
   async function loadProfile() {
-    if (!session || !session.user || !session.user.id) return;
+    if (!session || !session.user || !isValidUUID(session.user.id)) return;
     const { data, error } = await db.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
     if (error) { console.error('Erro ao buscar perfil:', error); return; }
     
@@ -449,7 +456,7 @@
   }
 
   async function loadNotifications() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     
     const { data: requests } = await db.from('friends')
       .select('*')
@@ -457,7 +464,7 @@
       .eq('status', 'pending');
       
     if (requests && requests.length > 0) {
-      const reqIds = requests.map(r => r.requester_id).filter(id => !!id);
+      const reqIds = requests.map(r => r.requester_id).filter(id => isValidUUID(id));
       if (reqIds.length > 0) {
         const { data: reqProfiles } = await db.from('profiles').select('id, name, avatar_url').in('id', reqIds);
         const profilesMap = {};
@@ -485,13 +492,15 @@
       toast('Nenhuma notificação nova.', 'success');
       return;
     }
-    const listHTML = window.pendingRequests.map(req => `
+    const listHTML = window.pendingRequests.map(req => {
+      const reqClick = isValidUUID(req.requester_id) ? `onclick="viewProfile('${req.requester_id}')"` : '';
+      return `
       <div style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem 0; border-bottom:1px solid var(--line-soft);">
-        <div class="message-avatar" style="width:36px;height:36px;cursor:pointer;" onclick="viewProfile('${req.requester_id}')">${req.profiles?.avatar_url ? `<img src="${req.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${req.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-        <div style="flex:1;cursor:pointer;" onclick="viewProfile('${req.requester_id}')"><div style="font-size:0.9rem; font-weight:500;">${req.profiles?.name || 'Usuário'}</div><div style="font-size:0.75rem; color:var(--ink-soft);">quer ser seu amigo.</div></div>
+        <div class="message-avatar" style="width:36px;height:36px;cursor:pointer;" ${reqClick}>${req.profiles?.avatar_url ? `<img src="${req.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${req.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+        <div style="flex:1;cursor:pointer;" ${reqClick}><div style="font-size:0.9rem; font-weight:500;">${req.profiles?.name || 'Usuário'}</div><div style="font-size:0.75rem; color:var(--ink-soft);">quer ser seu amigo.</div></div>
         <button class="btn btn-primary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="acceptFriend('${req.id}')">Aceitar</button>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
     openModal(`
       <div class="modal-header"><h3>Notificações</h3><button class="modal-close" aria-label="Fechar">×</button></div>
       <div>${listHTML}</div>
@@ -556,7 +565,7 @@
     }
     session = data.session; await loadProfile();
     loginForm.reset(); 
-    if (profile) showApp();
+    if (profile && isValidUUID(profile.id)) showApp();
   });
 
   registerForm.addEventListener('submit', async (e) => {
@@ -599,7 +608,7 @@
   document.getElementById('searchInput').addEventListener('input', async (e) => {
     const q = e.target.value.trim();
     const resultsEl = document.getElementById('searchResults');
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     if (q.length < 2) { resultsEl.innerHTML = ''; return; }
     const { data: users } = await db.from('profiles').select('id, name, avatar_url').ilike('name', `%${q}%`).neq('id', profile.id).limit(5);
     if (!users || users.length === 0) { resultsEl.innerHTML = '<div style="font-size:0.8rem; color:var(--ink-soft); padding:0.5rem;">Nenhum usuário encontrado.</div>'; return; }
@@ -612,7 +621,7 @@
   });
 
   window.viewProfile = (userId) => {
-    if (!userId) return;
+    if (!isValidUUID(userId)) return;
     previousView = currentView;
     previousTopicId = currentTopicId;
     viewingProfileId = userId;
@@ -651,9 +660,11 @@
   const mainContent = document.getElementById('mainContent');
   async function render() {
     mainContent.innerHTML = '<div class="loading-spinner">Carregando...</div>';
-    if (!profile && currentView !== 'amigos' && currentView !== 'jogos') {
-      mainContent.innerHTML = `<div class="empty-state"><h3>Quase lá!</h3><p>Seu perfil está sendo carregado, aguarde um instante...</p></div>`;
-      return;
+    if (!profile || !isValidUUID(profile.id)) {
+      if (currentView !== 'amigos' && currentView !== 'jogos') {
+        mainContent.innerHTML = `<div class="empty-state"><h3>Quase lá!</h3><p>Seu perfil está sendo carregado, aguarde um instante...</p></div>`;
+        return;
+      }
     }
     try {
       switch(currentView) {
@@ -674,7 +685,7 @@
 
   /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     
     const { data: friendships } = await db.from('friends').select('*').or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`).eq('status', 'accepted');
     const friendIds = [...(friendships||[]).map(f => f.requester_id === profile.id ? f.addressee_id : f.requester_id), profile.id];
@@ -690,9 +701,9 @@
     let userIds = new Set();
     if (posts && posts.length > 0) {
       posts.forEach(p => {
-        if (p.user_id) userIds.add(p.user_id);
-        if (p.parent_post && p.parent_post.user_id) userIds.add(p.parent_post.user_id);
-        if (p.comments) p.comments.forEach(c => { if (c.user_id) userIds.add(c.user_id); });
+        if (isValidUUID(p.user_id)) userIds.add(p.user_id);
+        if (p.parent_post && isValidUUID(p.parent_post.user_id)) userIds.add(p.parent_post.user_id);
+        if (p.comments) p.comments.forEach(c => { if (isValidUUID(c.user_id)) userIds.add(c.user_id); });
       });
     }
     
@@ -868,6 +879,7 @@
     const authorAvatar = p.author?.avatar_url || (p.user_id === profile.id ? profile.avatar_url : null);
     const pInitial = authorName.charAt(0).toUpperCase();
     const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
+    const authorClick = isValidUUID(p.user_id) ? `onclick="viewProfile('${p.user_id}')"` : '';
 
     let contentHTML = '';
     if (p.parent_post) {
@@ -876,12 +888,13 @@
       const opAvatarUrl = op.author?.avatar_url || (op.user_id === profile.id ? profile.avatar_url : null);
       const opInitial = opName.charAt(0).toUpperCase();
       const opAvatar = opAvatarUrl ? `<img src="${opAvatarUrl}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
+      const opClick = isValidUUID(op.user_id) ? `onclick="viewProfile('${op.user_id}')"` : '';
       contentHTML = `
         <div class="dash-post-content">
           <div class="embedded-post">
             <div class="embedded-post-header">
-              <div class="message-avatar" style="width:24px;height:24px;" onclick="viewProfile('${op.user_id}')">${opAvatar}</div>
-              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(opName)}</span>
+              <div class="message-avatar" style="width:24px;height:24px;" ${opClick}>${opAvatar}</div>
+              <span style="cursor:pointer;" ${opClick}>${escapeHtml(opName)}</span>
             </div>
             <div class="message-body" style="padding-left:0; margin-bottom:0.5rem;">${sanitizeHTML(op.content)}</div>
             ${op.image_url ? `<img src="${op.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
@@ -902,11 +915,12 @@
       const cAvatarUrl = c.commenter?.avatar_url || (c.user_id === profile.id ? profile.avatar_url : null);
       const cInitial = cName.charAt(0).toUpperCase();
       const cAvatar = cAvatarUrl ? `<img src="${cAvatarUrl}">` : `<div class="ph">${cInitial}</div>`;
+      const commentClick = isValidUUID(c.user_id) ? `onclick="viewProfile('${c.user_id}')"` : '';
       return `
         <div class="comment-item">
-          <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${cAvatar}</div>
+          <div class="comment-item-avatar" ${commentClick}>${cAvatar}</div>
           <div class="comment-item-body">
-            <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(cName)}</div>
+            <div class="comment-item-author" ${commentClick}>${escapeHtml(cName)}</div>
             <div class="comment-item-content">${sanitizeHTML(c.content)}</div>
           </div>
         </div>
@@ -916,9 +930,9 @@
     return `
       <div class="dash-post">
         <div class="dash-post-header">
-          <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
+          <div class="message-avatar" ${authorClick}>${pAvatar}</div>
           <div style="flex:1;">
-            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(authorName)}</div>
+            <div class="message-author" ${authorClick}>${escapeHtml(authorName)}</div>
             <div class="message-time">${formatDate(p.created_at)}</div>
           </div>
           ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
@@ -979,9 +993,9 @@
 
   /* ---------- PERFIL ---------- */
   async function renderProfile() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     const targetId = viewingProfileId || profile.id;
-    if (!targetId) return;
+    if (!isValidUUID(targetId)) return;
     const isOwn = targetId === profile.id;
     
     const { data: targetProfile, error } = await db.from('profiles').select('*').eq('id', targetId).single();
@@ -1060,6 +1074,7 @@
   }
 
   async function openEditProfile() {
+    if (!profile || !isValidUUID(profile.id)) return;
     const initial = profile.name.charAt(0).toUpperCase();
     const avatarPreview = profile.avatar_url ? `<img src="${profile.avatar_url}" alt="">` : `<div class="upload-preview-placeholder">${initial}</div>`;
     openModal(`
@@ -1137,7 +1152,7 @@
 
   /* ---------- AMIGOS ---------- */
   async function renderAmigos() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     const { data: friendships } = await db.from('friends')
       .select('*')
       .or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`);
@@ -1149,7 +1164,7 @@
     (friendships || []).forEach(f => {
       const isRequester = f.requester_id === profile.id;
       const friendId = isRequester ? f.addressee_id : f.requester_id;
-      if (friendId) allProfileIds.add(friendId);
+      if (isValidUUID(friendId)) allProfileIds.add(friendId);
     });
 
     const profilesMap = {};
@@ -1203,9 +1218,9 @@
   }
 
   async function renderFacetas() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     const targetId = viewingProfileId || profile.id;
-    if (!targetId) return;
+    if (!isValidUUID(targetId)) return;
     const { data: items, error } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
     const grid = (items || []).map(f => `
@@ -1233,9 +1248,9 @@
   }
 
   async function renderRealismo() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     const targetId = viewingProfileId || profile.id;
-    if (!targetId) return;
+    if (!isValidUUID(targetId)) return;
     const { data: items, error } = await db.from('realismo').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
     const grid = (items || []).map(r => `
@@ -1262,6 +1277,7 @@
   }
 
   async function openCreateModal(type) {
+    if (!profile || !isValidUUID(profile.id)) return;
     const isFaceta = type === 'faceta';
     const label = isFaceta ? 'Nome do personagem' : 'Título da obra';
     const cta = isFaceta ? 'Criar personagem' : 'Adicionar obra';
@@ -1307,7 +1323,7 @@
 
   /* ---------- RABISCO ---------- */
   async function renderRabisco() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     if (currentTopicId) return renderTopic();
     const joinedTopics = profile.joined_topics || [];
     let filter = `user_id.eq.${profile.id}`;
@@ -1393,7 +1409,7 @@
   }
 
   async function renderTopic() {
-    if (!profile || !profile.id) return;
+    if (!profile || !isValidUUID(profile.id)) return;
     const { data: topic, error: topicError } = await db.from('topics').select('*').eq('id', currentTopicId).single();
     if (topicError || !topic) { currentTopicId = null; return renderRabisco(); }
     const { data: msgs, error: msgsError } = await db.from('messages').select('*, facetas(name, image_url)').eq('topic_id', topic.id).order('created_at', { ascending: true });
@@ -1413,11 +1429,12 @@
       const authorAvatar = character ? character.image_url : '';
       const initial = authorName.charAt(0).toUpperCase();
       const avatarHTML = authorAvatar ? `<img src="${authorAvatar}" alt="">` : `<div class="message-avatar-placeholder">${initial}</div>`;
+      const authorClick = isValidUUID(m.user_id) ? `onclick="viewProfile('${m.user_id}')"` : '';
       return `<div class="message">
         <div class="message-header">
-          <div class="message-avatar" onclick="viewProfile('${m.user_id}')">${avatarHTML}</div>
+          <div class="message-avatar" ${authorClick}>${avatarHTML}</div>
           <div>
-            <div class="message-author" onclick="viewProfile('${m.user_id}')">${escapeHtml(authorName)}</div>
+            <div class="message-author" ${authorClick}>${escapeHtml(authorName)}</div>
             <div class="message-time">${formatDate(m.created_at)}</div>
           </div>
         </div>
