@@ -267,8 +267,9 @@
 (function() {
   'use strict';
 
-  const SUPABASE_URL = 'https://rkczelgxpwfuzexntgrd.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_C-Aadj_cXIAGL6EoVftrqA_1Wus94EN';
+  // COLE SUAS CHAVES AQUI
+  const SUPABASE_URL = 'SUA_URL_AQUI';
+  const SUPABASE_KEY = 'SUA_CHAVE_AQUI';
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let session = null;
@@ -380,11 +381,8 @@
     
     if (data.session && data.session.user) {
       session = data.session;
-      // Valida se o token ainda é válido buscando o usuário no banco
       const { data: userData, error: userError } = await db.auth.getUser();
       if (userError) {
-        // Se der erro 403 (token expirado/inválido), desloga e limpa a tela
-        console.warn("Token expirado ou inválido. Deslogando...");
         await db.auth.signOut();
         session = null;
         profile = null;
@@ -393,11 +391,9 @@
       }
     }
     
-    // Se o perfil carregou, mostra o app. Senão, mostra a tela de login
     if (profile) {
       showApp();
     } else {
-      // Limpa qualquer resquício de token da URL do Google
       if (window.location.hash.includes('access_token') || window.location.hash.includes('error')) {
         window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
       }
@@ -679,6 +675,7 @@
   /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
     if (!profile || !profile.id) return;
+    
     const { data: friendships } = await db.from('friends').select('*').or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`).eq('status', 'accepted');
     const friendIds = [...(friendships||[]).map(f => f.requester_id === profile.id ? f.addressee_id : f.requester_id), profile.id];
 
@@ -821,6 +818,158 @@
       pendingPostImage = null;
       render();
     });
+
+    const feedEl = document.getElementById('dashFeed');
+    if (!posts || posts.length === 0) {
+      feedEl.innerHTML = `<div class="empty-state"><h3>Seu feed está vazio</h3><p>Faça sua primeira postagem ou adicione amigos para ver o que eles estão compartilhando.</p></div>`;
+    } else {
+      feedEl.innerHTML = posts.map(p => renderPostHTML(p)).join('');
+      
+      document.querySelectorAll('.post-action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const postId = btn.dataset.postid;
+          const action = btn.dataset.action;
+          if (action === 'like' || action === 'dislike' || action === 'fire') {
+            window.toggleReaction(postId, action);
+          } else if (action === 'comment') {
+            const section = document.querySelector(`.comment-section[data-postid="${postId}"]`);
+            if (section) section.classList.toggle('show');
+          } else if (action === 'repost') {
+            window.repost(postId);
+          }
+        });
+      });
+
+      document.querySelectorAll('.comment-input-area button').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const postId = btn.dataset.postid;
+          const input = document.querySelector(`.comment-input-area input[data-postid="${postId}"]`);
+          if (input && input.value.trim()) {
+            await db.from('comments').insert([{ post_id: postId, user_id: profile.id, content: input.value.trim() }]);
+            toast('Comentário adicionado!', 'success');
+            render();
+          }
+        });
+      });
+    }
+  }
+
+  function renderPostHTML(p) {
+    const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
+    const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
+    const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
+    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === profile.id) : false;
+    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === profile.id) : false;
+    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === profile.id) : false;
+
+    const authorName = p.author?.name || (p.user_id === profile.id ? profile.name : 'Anônimo');
+    const authorAvatar = p.author?.avatar_url || (p.user_id === profile.id ? profile.avatar_url : null);
+    const pInitial = authorName.charAt(0).toUpperCase();
+    const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
+
+    let contentHTML = '';
+    if (p.parent_post) {
+      const op = p.parent_post;
+      const opName = op.author?.name || (op.user_id === profile.id ? profile.name : 'Anônimo');
+      const opAvatarUrl = op.author?.avatar_url || (op.user_id === profile.id ? profile.avatar_url : null);
+      const opInitial = opName.charAt(0).toUpperCase();
+      const opAvatar = opAvatarUrl ? `<img src="${opAvatarUrl}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
+      contentHTML = `
+        <div class="dash-post-content">
+          <div class="embedded-post">
+            <div class="embedded-post-header">
+              <div class="message-avatar" style="width:24px;height:24px;" onclick="viewProfile('${op.user_id}')">${opAvatar}</div>
+              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(opName)}</span>
+            </div>
+            <div class="message-body" style="padding-left:0; margin-bottom:0.5rem;">${sanitizeHTML(op.content)}</div>
+            ${op.image_url ? `<img src="${op.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
+          </div>
+        </div>
+      `;
+    } else {
+      contentHTML = `
+        <div class="dash-post-content">
+          ${p.content ? `<div class="message-body" style="padding-left:0;">${sanitizeHTML(p.content)}</div>` : ''}
+          ${p.image_url ? `<img src="${p.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
+        </div>
+      `;
+    }
+
+    const commentsHTML = (p.comments || []).map(c => {
+      const cName = c.commenter?.name || (c.user_id === profile.id ? profile.name : 'Anônimo');
+      const cAvatarUrl = c.commenter?.avatar_url || (c.user_id === profile.id ? profile.avatar_url : null);
+      const cInitial = cName.charAt(0).toUpperCase();
+      const cAvatar = cAvatarUrl ? `<img src="${cAvatarUrl}">` : `<div class="ph">${cInitial}</div>`;
+      return `
+        <div class="comment-item">
+          <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${cAvatar}</div>
+          <div class="comment-item-body">
+            <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(cName)}</div>
+            <div class="comment-item-content">${sanitizeHTML(c.content)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="dash-post">
+        <div class="dash-post-header">
+          <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
+          <div style="flex:1;">
+            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(authorName)}</div>
+            <div class="message-time">${formatDate(p.created_at)}</div>
+          </div>
+          ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
+        </div>
+        ${contentHTML}
+        <div class="post-actions">
+          <button class="post-action-btn ${userLiked ? 'active' : ''}" data-postid="${p.id}" data-action="like">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+            <span class="count">${likes}</span>
+          </button>
+          <button class="post-action-btn ${userDisliked ? 'active' : ''}" data-postid="${p.id}" data-action="dislike">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>
+            <span class="count">${dislikes}</span>
+          </button>
+          <button class="post-action-btn ${userFired ? 'active' : ''}" data-postid="${p.id}" data-action="fire" style="${userFired ? 'color:#e76f51;' : ''}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+            <span class="count">${fires}</span>
+          </button>
+          <button class="post-action-btn" data-postid="${p.id}" data-action="comment">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </button>
+          <button class="post-action-btn" data-postid="${p.id}" data-action="repost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          </button>
+        </div>
+        <div class="comment-section" data-postid="${p.id}">
+          ${commentsHTML}
+          <div class="comment-input-area">
+            <input type="text" placeholder="Escreva um comentário..." data-postid="${p.id}">
+            <button data-postid="${p.id}">Enviar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  window.toggleReaction = async (postId, type) => {
+    const { data: existing } = await db.from('reactions').select('*').eq('post_id', postId).eq('user_id', profile.id).eq('type', type).maybeSingle();
+    if (existing) {
+      await db.from('reactions').delete().eq('id', existing.id);
+    } else {
+      await db.from('reactions').insert([{ post_id: postId, user_id: profile.id, type }]);
+    }
+    render();
+  };
+
+  window.repost = async (postId) => {
+    await db.from('posts').insert([{ user_id: profile.id, content: '', parent_post_id: postId }]);
+    toast('Repostado com sucesso!', 'success');
+    render();
+  };
 
   window.deletePost = async (postId) => {
     await db.from('posts').delete().eq('id', postId);
