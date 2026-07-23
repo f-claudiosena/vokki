@@ -149,9 +149,23 @@
   @media (max-width: 820px) { .app-body { grid-template-columns: 1fr; padding: 1.25rem; gap: 1.5rem; } .main-content { max-width: 100%; } .sidebar { position: static; } .nav-list { display: flex; gap: 0.25rem; overflow-x: auto; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line); margin-bottom: 0.5rem; } .nav-item { white-space: nowrap; padding: 0.5rem 0.85rem; font-size: 0.85rem; } .nav-item svg { width: 16px; height: 16px; } .app-header { padding: 0.85rem 1.25rem; grid-template-columns: auto 1fr auto; gap: 0.75rem; } .top-tabs { gap: 0.15rem; padding: 0.2rem; } .top-tab { padding: 0.4rem 0.6rem; font-size: 0.62rem; letter-spacing: 0.15em; } .user-mini-name { display: none; } .profile-top { flex-direction: column; text-align: center; padding: 1.5rem; } .profile-bio { padding: 0 1.5rem 1.5rem; } .edit-row { grid-template-columns: 1fr; } .view-title { font-size: 1.4rem; } .forum-detail-header { flex-direction: column; align-items: flex-start; } .forum-detail-header h2 { font-size: 1.5rem; } .message-body { padding-left: 0; } .composer-actions { flex-direction: column; align-items: stretch; } .composer-hint { text-align: center; } }
     
   /* TEMAS */
-  body.theme-gothic { --bg: #0f0f0f; --cream: #1a1a1a; --ink: #f0f0f0; --ink-soft: #b0b0b0; --ink-faint: #808080; --chamomile: #8a2be2; --chamomile-deep: #9400d3; --chamomile-soft: #2a243a; --line: rgba(255,255,255,0.1); --line-soft: rgba(255,255,255,0.05); --danger: #ff4c4c; background-image: none; }
-  body.theme-naruto { --bg: #ff7b00; --cream: rgba(255, 255, 255, 0.92); --ink: #2a2823; --ink-soft: #555; --ink-faint: #777; --chamomile: #ff7b00; --chamomile-deep: #cc6300; --chamomile-soft: #ffe0b3; --line: rgba(0,0,0,0.1); --line-soft: rgba(0,0,0,0.05); background-image: url('https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg'); background-size: cover; background-attachment: fixed; background-position: center; }
+  body.theme-gothic { 
+    --bg: #121212; --cream: #1e1e1e; --ink: #e0e0e0; --ink-soft: #a0a0a0; --ink-faint: #707070; 
+    --chamomile: #8a2be2; --chamomile-deep: #9400d3; --chamomile-soft: #2a243a; 
+    --line: rgba(255,255,255,0.1); --line-soft: rgba(255,255,255,0.05); --danger: #ff4c4c; 
+    background-image: none; 
+  }
+  body.theme-naruto { 
+    --bg: #1a1a1a; --cream: rgba(255, 255, 255, 0.92); --ink: #2a2823; --ink-soft: #555; --ink-faint: #777; 
+    --chamomile: #ff7b00; --chamomile-deep: #cc6300; --chamomile-soft: #ffe0b3; 
+    --line: rgba(0,0,0,0.1); --line-soft: rgba(0,0,0,0.05); 
+    background-image: url('https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg'); 
+    background-size: cover; background-attachment: fixed; background-position: center; 
+  }
   body.theme-custom { background-image: none; }
+  
+  .theme-card { border: 2px solid transparent; transition: all 0.3s ease; }
+  .theme-card.selected { border-color: var(--chamomile); box-shadow: 0 0 0 2px var(--chamomile); transform: translateY(-2px); }
 </style>
 </head>
 <body>
@@ -386,21 +400,27 @@
   const registerForm = document.getElementById('registerForm');
 
     // ===== LÓGICA DE TEMAS =====
-  function applyTheme(themeName, colors = null) {
+  let currentThemeSelection = 'default';
+
+  function previewTheme(themeName) {
     document.body.classList.remove('theme-gothic', 'theme-naruto', 'theme-custom');
     document.documentElement.style.removeProperty('--chamomile');
     document.documentElement.style.removeProperty('--chamomile-deep');
     document.documentElement.style.removeProperty('--chamomile-soft');
     document.documentElement.style.removeProperty('--bg');
 
+    if (themeName === 'gothic') document.body.classList.add('theme-gothic');
+    else if (themeName === 'naruto') document.body.classList.add('theme-naruto');
+    // 'default' e 'custom' não aplicam classe aqui, custom é aplicado no salvar
+  }
+
+  function saveTheme(themeName, colors = null) {
+    previewTheme(themeName); // Aplica visualmente
+    
     if (themeName === 'default') {
       localStorage.removeItem('vokki_theme');
-    } else if (themeName === 'gothic') {
-      document.body.classList.add('theme-gothic');
-      localStorage.setItem('vokki_theme', 'gothic');
-    } else if (themeName === 'naruto') {
-      document.body.classList.add('theme-naruto');
-      localStorage.setItem('vokki_theme', 'naruto');
+    } else if (themeName === 'gothic' || themeName === 'naruto') {
+      localStorage.setItem('vokki_theme', themeName);
     } else if (themeName === 'custom' && colors) {
       document.body.classList.add('theme-custom');
       document.documentElement.style.setProperty('--chamomile', colors.primary);
@@ -409,7 +429,7 @@
       document.documentElement.style.setProperty('--bg', colors.secondary);
       localStorage.setItem('vokki_theme', JSON.stringify({ type: 'custom', colors }));
     }
-    toast('Tema aplicado com sucesso!', 'success');
+    toast('Tema salvo com sucesso!', 'success');
   }
 
   function loadSavedTheme() {
@@ -419,57 +439,76 @@
     else if (savedTheme) {
       try {
         const parsed = JSON.parse(savedTheme);
-        if (parsed.type === 'custom') applyTheme('custom', parsed.colors);
+        if (parsed.type === 'custom') saveTheme('custom', parsed.colors);
       } catch(e) {}
     }
   }
 
   function renderTemas() {
-    mainContent.innerHTML = `
-      <div class="view-header"><div><div class="view-title">Temas</div></div></div>
-      <p style="margin-bottom: 1.5rem; color: var(--ink-soft); font-size: 0.9rem;">Escolha um tema para personalizar a aparência do seu Vokki. A mudança é salva apenas neste navegador.</p>
-      <div class="gallery-grid">
-        <div class="gallery-card" onclick="applyTheme('default')" style="cursor:pointer;">
-          <div class="gallery-card-image" style="background: #f7f4ed; display:flex; align-items:center; justify-content:center;">
-            <div class="gallery-card-image-placeholder" style="color: #a8893f;">C</div>
-          </div>
-          <div class="gallery-card-info">
-            <div class="gallery-card-name">Padrão (Camomila)</div>
-            <div class="gallery-card-meta">original</div>
-          </div>
-        </div>
+    // Verifica qual tema está salvo atualmente
+    const savedThemeRaw = localStorage.getItem('vokki_theme') || 'default';
+    let activeTheme = 'default';
+    try {
+      const parsed = JSON.parse(savedThemeRaw);
+      if (parsed.type === 'custom') activeTheme = 'custom';
+    } catch(e) { activeTheme = savedThemeRaw; }
+    
+    currentThemeSelection = activeTheme;
 
-        <div class="gallery-card" onclick="applyTheme('gothic')" style="cursor:pointer;">
-          <div class="gallery-card-image" style="background: #1a1a1a; display:flex; align-items:center; justify-content:center;">
-            <div class="gallery-card-image-placeholder" style="color: #8a2be2;">G</div>
-          </div>
-          <div class="gallery-card-info">
-            <div class="gallery-card-name">Tema Gótico</div>
-            <div class="gallery-card-meta">escuro</div>
-          </div>
+    const cardHTML = (id, name, desc, style, icon) => `
+      <div class="gallery-card theme-card ${currentThemeSelection === id ? 'selected' : ''}" data-theme="${id}" style="cursor:pointer;">
+        <div class="gallery-card-image" style="${style} display:flex; align-items:center; justify-content:center;">
+          <div class="gallery-card-image-placeholder" style="${style.includes('color:') ? '' : 'text-shadow: 2px 2px 4px rgba(0,0,0,0.5);'}">${icon}</div>
         </div>
-
-        <div class="gallery-card" onclick="applyTheme('naruto')" style="cursor:pointer;">
-          <div class="gallery-card-image" style="background: url('https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg') center/cover; display:flex; align-items:center; justify-content:center;">
-            <div class="gallery-card-image-placeholder" style="color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">N</div>
-          </div>
-          <div class="gallery-card-info">
-            <div class="gallery-card-name">Tema Naruto</div>
-            <div class="gallery-card-meta">fundo laranja</div>
-          </div>
-        </div>
-
-        <div class="gallery-card" onclick="openCustomThemeModal()" style="cursor:pointer;">
-          <div class="gallery-card-image" style="background: linear-gradient(135deg, var(--chamomile) 50%, var(--bg) 50%); display:flex; align-items:center; justify-content:center;">
-            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="13.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="10.5" r="2.5"></circle><circle cx="8.5" cy="7.5" r="2.5"></circle><circle cx="6.5" cy="12.5" r="2.5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>
-          </div>
-          <div class="gallery-card-info">
-            <div class="gallery-card-name">Cores Personalizadas</div>
-            <div class="gallery-card-meta">escolher hex</div>
-          </div>
+        <div class="gallery-card-info">
+          <div class="gallery-card-name">${name}</div>
+          <div class="gallery-card-meta">${desc}</div>
         </div>
       </div>
     `;
+
+    mainContent.innerHTML = `
+      <div class="view-header">
+        <div><div class="view-title">Temas</div></div>
+        <button class="btn btn-primary" id="saveThemeBtn" style="width:auto;">Salvar Tema</button>
+      </div>
+      <p style="margin-bottom: 1.5rem; color: var(--ink-soft); font-size: 0.9rem;">Clique em um tema para pré-visualizar. Se gostar, clique em "Salvar Tema" no topo.</p>
+      <div class="gallery-grid">
+        ${cardHTML('default', 'Padrão (Camomila)', 'original', 'background: #f7f4ed; color: #a8893f;', 'C')}
+        ${cardHTML('gothic', 'Tema Gótico', 'escuro', 'background: #1a1a1a; color: #8a2be2;', 'G')}
+        ${cardHTML('naruto', 'Tema Naruto', 'fundo anime', 'background: url("https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg") center/cover; color: #fff;', 'N')}
+        ${cardHTML('custom', 'Cores Personalizadas', 'escolher hex', 'background: linear-gradient(135deg, #c9a96e 50%, #f7f4ed 50%); color: #fff;', '+')}
+      </div>
+    `;
+
+    document.getElementById('saveThemeBtn').addEventListener('click', () => {
+      if (currentThemeSelection === 'custom') {
+        // Se for custom, abre o modal de cores
+        openCustomThemeModal();
+      } else {
+        saveTheme(currentThemeSelection);
+      }
+    });
+
+    document.querySelectorAll('.theme-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const themeId = card.dataset.theme;
+        currentThemeSelection = themeId;
+        
+        // Atualiza visualmente qual está selecionado (borda)
+        document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        
+        // Aplica a pré-visualização
+        if (themeId === 'default') previewTheme('default');
+        else if (themeId === 'gothic') previewTheme('gothic');
+        else if (themeId === 'naruto') previewTheme('naruto');
+        else if (themeId === 'custom') {
+          // No custom, apenas abre o modal direto para escolher
+          openCustomThemeModal();
+        }
+      });
+    });
   }
 
   window.openCustomThemeModal = () => {
@@ -490,7 +529,7 @@
       </div>
       <div class="edit-actions">
         <button class="btn btn-secondary" id="cancelCustomTheme" type="button">Cancelar</button>
-        <button class="btn btn-primary" id="saveCustomTheme" type="button" style="width:auto;">Salvar</button>
+        <button class="btn btn-primary" id="saveCustomTheme" type="button" style="width:auto;">Salvar Cores</button>
       </div>
     `);
     document.getElementById('cancelCustomTheme').addEventListener('click', closeModal);
@@ -498,8 +537,10 @@
     document.getElementById('saveCustomTheme').addEventListener('click', () => {
       const p = document.getElementById('colorPrimary').value;
       const s = document.getElementById('colorSecondary').value;
-      applyTheme('custom', { primary: p, secondary: s });
+      currentThemeSelection = 'custom';
+      saveTheme('custom', { primary: p, secondary: s });
       closeModal();
+      render(); // Re-renderiza para mostrar o card custom selecionado
     });
   }
 
