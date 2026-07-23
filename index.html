@@ -282,13 +282,6 @@
   let notifInterval = null;
   let pendingPostImage = null;
 
-  // Trava de segurança para IDs
-  function isValidUUID(str) {
-    if (!str) return false;
-    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    return regex.test(str);
-  }
-
   function sanitizeHTML(html) {
     if (!html) return '';
     return String(html)
@@ -385,20 +378,18 @@
 
   async function init() {
     const { data, error } = await db.auth.getSession();
-    
     if (data.session && data.session.user) {
       session = data.session;
       const { data: userData, error: userError } = await db.auth.getUser();
       if (userError) {
         await db.auth.signOut();
-        session = null;
-        profile = null;
+        session = null; profile = null;
       } else {
         await loadProfile();
       }
     }
     
-    if (profile && isValidUUID(profile.id)) {
+    if (profile) {
       showApp();
     } else {
       if (window.location.hash.includes('access_token') || window.location.hash.includes('error')) {
@@ -412,8 +403,7 @@
       isInitialized = true;
       
       if (event === 'SIGNED_OUT') {
-        session = null;
-        profile = null;
+        session = null; profile = null;
         if (window.location.hash) window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
         showLogin();
         return;
@@ -424,17 +414,16 @@
         if (!profile || profile.id !== newSession.user.id) {
           await loadProfile();
         }
-        if (profile && isValidUUID(profile.id)) showApp(); else showLogin();
+        if (profile) showApp(); else showLogin();
       } else {
-        session = null;
-        profile = null;
+        session = null; profile = null;
         showLogin();
       }
     });
   }
 
   async function loadProfile() {
-    if (!session || !session.user || !isValidUUID(session.user.id)) return;
+    if (!session || !session.user) return;
     const { data, error } = await db.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
     if (error) { console.error('Erro ao buscar perfil:', error); return; }
     
@@ -456,28 +445,13 @@
   }
 
   async function loadNotifications() {
-    if (!profile || !isValidUUID(profile.id)) return;
-    
+    if (!profile) return;
     const { data: requests } = await db.from('friends')
-      .select('*')
+      .select('*, profiles:requester_id(name, avatar_url)')
       .eq('addressee_id', profile.id)
       .eq('status', 'pending');
-      
-    if (requests && requests.length > 0) {
-      const reqIds = requests.map(r => r.requester_id).filter(id => isValidUUID(id));
-      if (reqIds.length > 0) {
-        const { data: reqProfiles } = await db.from('profiles').select('id, name, avatar_url').in('id', reqIds);
-        const profilesMap = {};
-        (reqProfiles || []).forEach(p => profilesMap[p.id] = p);
-        window.pendingRequests = requests.map(r => ({ ...r, profiles: profilesMap[r.requester_id] }));
-      } else {
-        window.pendingRequests = [];
-      }
-    } else {
-      window.pendingRequests = [];
-    }
     
-    const count = window.pendingRequests.length;
+    const count = requests ? requests.length : 0;
     const notifCountEl = document.getElementById('notifCount');
     if (count > 0) {
       notifCountEl.textContent = count;
@@ -485,6 +459,7 @@
     } else {
       notifCountEl.classList.add('hidden');
     }
+    window.pendingRequests = requests || [];
   }
 
   document.getElementById('notifBtn').addEventListener('click', () => {
@@ -492,15 +467,13 @@
       toast('Nenhuma notificação nova.', 'success');
       return;
     }
-    const listHTML = window.pendingRequests.map(req => {
-      const reqClick = isValidUUID(req.requester_id) ? `onclick="viewProfile('${req.requester_id}')"` : '';
-      return `
+    const listHTML = window.pendingRequests.map(req => `
       <div style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem 0; border-bottom:1px solid var(--line-soft);">
-        <div class="message-avatar" style="width:36px;height:36px;cursor:pointer;" ${reqClick}>${req.profiles?.avatar_url ? `<img src="${req.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${req.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-        <div style="flex:1;cursor:pointer;" ${reqClick}><div style="font-size:0.9rem; font-weight:500;">${req.profiles?.name || 'Usuário'}</div><div style="font-size:0.75rem; color:var(--ink-soft);">quer ser seu amigo.</div></div>
+        <div class="message-avatar" style="width:36px;height:36px;cursor:pointer;" onclick="viewProfile('${req.requester_id}')">${req.profiles?.avatar_url ? `<img src="${req.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${req.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+        <div style="flex:1;cursor:pointer;" onclick="viewProfile('${req.requester_id}')"><div style="font-size:0.9rem; font-weight:500;">${req.profiles?.name || 'Usuário'}</div><div style="font-size:0.75rem; color:var(--ink-soft);">quer ser seu amigo.</div></div>
         <button class="btn btn-primary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="acceptFriend('${req.id}')">Aceitar</button>
-      </div>`;
-    }).join('');
+      </div>
+    `).join('');
     openModal(`
       <div class="modal-header"><h3>Notificações</h3><button class="modal-close" aria-label="Fechar">×</button></div>
       <div>${listHTML}</div>
@@ -565,7 +538,7 @@
     }
     session = data.session; await loadProfile();
     loginForm.reset(); 
-    if (profile && isValidUUID(profile.id)) showApp();
+    if (profile) showApp();
   });
 
   registerForm.addEventListener('submit', async (e) => {
@@ -608,7 +581,7 @@
   document.getElementById('searchInput').addEventListener('input', async (e) => {
     const q = e.target.value.trim();
     const resultsEl = document.getElementById('searchResults');
-    if (!profile || !isValidUUID(profile.id)) return;
+    if (!profile) return;
     if (q.length < 2) { resultsEl.innerHTML = ''; return; }
     const { data: users } = await db.from('profiles').select('id, name, avatar_url').ilike('name', `%${q}%`).neq('id', profile.id).limit(5);
     if (!users || users.length === 0) { resultsEl.innerHTML = '<div style="font-size:0.8rem; color:var(--ink-soft); padding:0.5rem;">Nenhum usuário encontrado.</div>'; return; }
@@ -621,7 +594,6 @@
   });
 
   window.viewProfile = (userId) => {
-    if (!isValidUUID(userId)) return;
     previousView = currentView;
     previousTopicId = currentTopicId;
     viewingProfileId = userId;
@@ -660,11 +632,9 @@
   const mainContent = document.getElementById('mainContent');
   async function render() {
     mainContent.innerHTML = '<div class="loading-spinner">Carregando...</div>';
-    if (!profile || !isValidUUID(profile.id)) {
-      if (currentView !== 'amigos' && currentView !== 'jogos') {
-        mainContent.innerHTML = `<div class="empty-state"><h3>Quase lá!</h3><p>Seu perfil está sendo carregado, aguarde um instante...</p></div>`;
-        return;
-      }
+    if (!profile && currentView !== 'amigos' && currentView !== 'jogos') {
+      mainContent.innerHTML = `<div class="empty-state"><h3>Quase lá!</h3><p>Seu perfil está sendo carregado, aguarde um instante...</p></div>`;
+      return;
     }
     try {
       switch(currentView) {
@@ -685,50 +655,18 @@
 
   /* ---------- DASHBOARD (INÍCIO) ---------- */
   async function renderDashboard() {
-    if (!profile || !isValidUUID(profile.id)) return;
-    
-    const { data: friendships } = await db.from('friends').select('*').or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`).eq('status', 'accepted');
-    const friendIds = [...(friendships||[]).map(f => f.requester_id === profile.id ? f.addressee_id : f.requester_id), profile.id];
+    if (!profile) return;
+    const { data: f1 } = await db.from('friends').select('addressee_id').eq('requester_id', profile.id).eq('status', 'accepted');
+    const { data: f2 } = await db.from('friends').select('requester_id').eq('addressee_id', profile.id).eq('status', 'accepted');
+    const friendIds = [...(f1||[]).map(f => f.addressee_id), ...(f2||[]).map(f => f.requester_id), profile.id];
 
     const { data: posts, error } = await db.from('posts')
-      .select('*, reactions(type, user_id), comments(*), parent_post:posts!parent_post_id(*)')
+      .select('*, author:profiles!posts_user_id_fkey(name, avatar_url), reactions(type, user_id), comments(id, content, created_at, user_id, author:profiles!comments_user_id_fkey(name, avatar_url)), parent_post:posts!parent_post_id(id, content, image_url, created_at, user_id, author:profiles!posts_user_id_fkey(name, avatar_url))')
       .in('user_id', friendIds)
       .order('created_at', { ascending: false })
       .limit(50);
       
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
-
-    let userIds = new Set();
-    if (posts && posts.length > 0) {
-      posts.forEach(p => {
-        if (isValidUUID(p.user_id)) userIds.add(p.user_id);
-        if (p.parent_post && isValidUUID(p.parent_post.user_id)) userIds.add(p.parent_post.user_id);
-        if (p.comments) p.comments.forEach(c => { if (isValidUUID(c.user_id)) userIds.add(c.user_id); });
-      });
-    }
-    
-    const profilesMap = {};
-    if (userIds.size > 0) {
-      const { data: profilesData } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(userIds));
-      (profilesData || []).forEach(p => profilesMap[p.id] = p);
-    }
-    
-    profilesMap[profile.id] = { id: profile.id, name: profile.name, avatar_url: profile.avatar_url };
-
-    posts.forEach(p => {
-      let authorData = profilesMap[p.user_id] || { name: 'Anônimo', avatar_url: null };
-      p.author = authorData;
-      
-      if (p.parent_post) {
-        p.parent_post.author = profilesMap[p.parent_post.user_id] || { name: 'Anônimo', avatar_url: null };
-      }
-      
-      if (p.comments) {
-        p.comments.forEach(c => {
-          c.commenter = profilesMap[c.user_id] || { name: 'Anônimo', avatar_url: null };
-        });
-      }
-    });
 
     const initial = profile.name.charAt(0).toUpperCase();
     const avatarHTML = profile.avatar_url ? `<img src="${profile.avatar_url}" alt="">` : `<div class="message-avatar-placeholder">${initial}</div>`;
@@ -871,30 +809,28 @@
     const likes = p.reactions ? p.reactions.filter(r => r.type === 'like').length : 0;
     const dislikes = p.reactions ? p.reactions.filter(r => r.type === 'dislike').length : 0;
     const fires = p.reactions ? p.reactions.filter(r => r.type === 'fire').length : 0;
-    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === profile.id) : false;
-    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === profile.id) : false;
-    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === profile.id) : false;
+    const userLiked = p.reactions ? p.reactions.some(r => r.type === 'like' && r.user_id === session.user.id) : false;
+    const userDisliked = p.reactions ? p.reactions.some(r => r.type === 'dislike' && r.user_id === session.user.id) : false;
+    const userFired = p.reactions ? p.reactions.some(r => r.type === 'fire' && r.user_id === session.user.id) : false;
 
-    const authorName = p.author?.name || (p.user_id === profile.id ? profile.name : 'Anônimo');
-    const authorAvatar = p.author?.avatar_url || (p.user_id === profile.id ? profile.avatar_url : null);
+    const authorName = p.author?.name || 'Anônimo';
+    const authorAvatar = p.author?.avatar_url || null;
     const pInitial = authorName.charAt(0).toUpperCase();
     const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
-    const authorClick = isValidUUID(p.user_id) ? `onclick="viewProfile('${p.user_id}')"` : '';
 
     let contentHTML = '';
     if (p.parent_post) {
       const op = p.parent_post;
-      const opName = op.author?.name || (op.user_id === profile.id ? profile.name : 'Anônimo');
-      const opAvatarUrl = op.author?.avatar_url || (op.user_id === profile.id ? profile.avatar_url : null);
+      const opName = op.author?.name || 'Anônimo';
+      const opAvatarUrl = op.author?.avatar_url || null;
       const opInitial = opName.charAt(0).toUpperCase();
       const opAvatar = opAvatarUrl ? `<img src="${opAvatarUrl}">` : `<div class="message-avatar-placeholder">${opInitial}</div>`;
-      const opClick = isValidUUID(op.user_id) ? `onclick="viewProfile('${op.user_id}')"` : '';
       contentHTML = `
         <div class="dash-post-content">
           <div class="embedded-post">
             <div class="embedded-post-header">
-              <div class="message-avatar" style="width:24px;height:24px;" ${opClick}>${opAvatar}</div>
-              <span style="cursor:pointer;" ${opClick}>${escapeHtml(opName)}</span>
+              <div class="message-avatar" style="width:24px;height:24px;" onclick="viewProfile('${op.user_id}')">${opAvatar}</div>
+              <span style="cursor:pointer;" onclick="viewProfile('${op.user_id}')">${escapeHtml(opName)}</span>
             </div>
             <div class="message-body" style="padding-left:0; margin-bottom:0.5rem;">${sanitizeHTML(op.content)}</div>
             ${op.image_url ? `<img src="${op.image_url}" class="post-image" style="max-width:100%; border-radius:0.4rem; margin-top:0.5rem;">` : ''}
@@ -911,16 +847,15 @@
     }
 
     const commentsHTML = (p.comments || []).map(c => {
-      const cName = c.commenter?.name || (c.user_id === profile.id ? profile.name : 'Anônimo');
-      const cAvatarUrl = c.commenter?.avatar_url || (c.user_id === profile.id ? profile.avatar_url : null);
+      const cName = c.author?.name || 'Anônimo';
+      const cAvatarUrl = c.author?.avatar_url || null;
       const cInitial = cName.charAt(0).toUpperCase();
       const cAvatar = cAvatarUrl ? `<img src="${cAvatarUrl}">` : `<div class="ph">${cInitial}</div>`;
-      const commentClick = isValidUUID(c.user_id) ? `onclick="viewProfile('${c.user_id}')"` : '';
       return `
         <div class="comment-item">
-          <div class="comment-item-avatar" ${commentClick}>${cAvatar}</div>
+          <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${cAvatar}</div>
           <div class="comment-item-body">
-            <div class="comment-item-author" ${commentClick}>${escapeHtml(cName)}</div>
+            <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(cName)}</div>
             <div class="comment-item-content">${sanitizeHTML(c.content)}</div>
           </div>
         </div>
@@ -930,12 +865,12 @@
     return `
       <div class="dash-post">
         <div class="dash-post-header">
-          <div class="message-avatar" ${authorClick}>${pAvatar}</div>
+          <div class="message-avatar" onclick="viewProfile('${p.user_id}')">${pAvatar}</div>
           <div style="flex:1;">
-            <div class="message-author" ${authorClick}>${escapeHtml(authorName)}</div>
+            <div class="message-author" onclick="viewProfile('${p.user_id}')">${escapeHtml(authorName)}</div>
             <div class="message-time">${formatDate(p.created_at)}</div>
           </div>
-          ${p.user_id === profile.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
+          ${p.user_id === session.user.id ? `<button class="gallery-card-delete" style="position:relative; opacity:1; border:none;" onclick="deletePost('${p.id}')">×</button>` : ''}
         </div>
         ${contentHTML}
         <div class="post-actions">
@@ -993,9 +928,8 @@
 
   /* ---------- PERFIL ---------- */
   async function renderProfile() {
-    if (!profile || !isValidUUID(profile.id)) return;
+    if (!profile) return;
     const targetId = viewingProfileId || profile.id;
-    if (!isValidUUID(targetId)) return;
     const isOwn = targetId === profile.id;
     
     const { data: targetProfile, error } = await db.from('profiles').select('*').eq('id', targetId).single();
@@ -1007,8 +941,8 @@
     } else {
       headerActions = `<button class="btn btn-secondary" id="backFromProfileBtn" style="width:auto; margin-right: 0.5rem;">← Voltar</button>`;
       
-      const { data: f1 } = await db.from('friends').select('id, status, requester_id, addressee_id').eq('requester_id', profile.id).eq('addressee_id', targetId).maybeSingle();
-      const { data: f2 } = await db.from('friends').select('id, status, requester_id, addressee_id').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
+      const { data: f1 } = await db.from('friends').select('*').eq('requester_id', profile.id).eq('addressee_id', targetId).maybeSingle();
+      const { data: f2 } = await db.from('friends').select('*').eq('requester_id', targetId).eq('addressee_id', profile.id).maybeSingle();
       const friendship = f1 || f2;
       
       if (!friendship) {
@@ -1074,7 +1008,6 @@
   }
 
   async function openEditProfile() {
-    if (!profile || !isValidUUID(profile.id)) return;
     const initial = profile.name.charAt(0).toUpperCase();
     const avatarPreview = profile.avatar_url ? `<img src="${profile.avatar_url}" alt="">` : `<div class="upload-preview-placeholder">${initial}</div>`;
     openModal(`
@@ -1152,46 +1085,23 @@
 
   /* ---------- AMIGOS ---------- */
   async function renderAmigos() {
-    if (!profile || !isValidUUID(profile.id)) return;
-    const { data: friendships } = await db.from('friends')
-      .select('*')
-      .or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`);
-      
-    const friends = [];
-    const pending = [];
-    const allProfileIds = new Set();
+    const { data: f1 } = await db.from('friends').select('*, addressee_id, created_at, profiles:addressee_id(name, avatar_url)').eq('requester_id', profile.id).eq('status', 'accepted');
+    const { data: f2 } = await db.from('friends').select('*, requester_id, created_at, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'accepted');
     
-    (friendships || []).forEach(f => {
-      const isRequester = f.requester_id === profile.id;
-      const friendId = isRequester ? f.addressee_id : f.requester_id;
-      if (isValidUUID(friendId)) allProfileIds.add(friendId);
-    });
+    const friends = [
+      ...(f1||[]).map(f => ({ id: f.addressee_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at })),
+      ...(f2||[]).map(f => ({ id: f.requester_id, name: f.profiles?.name, avatar_url: f.profiles?.avatar_url, created_at: f.created_at }))
+    ];
 
-    const profilesMap = {};
-    if (allProfileIds.size > 0) {
-      const { data: profilesData } = await db.from('profiles').select('id, name, avatar_url').in('id', Array.from(allProfileIds));
-      (profilesData || []).forEach(p => profilesMap[p.id] = p);
-    }
-
-    (friendships || []).forEach(f => {
-      const isRequester = f.requester_id === profile.id;
-      const friendId = isRequester ? f.addressee_id : f.requester_id;
-      const friendProfile = profilesMap[friendId] || { name: 'Usuário', avatar_url: null };
-      
-      if (f.status === 'accepted') {
-        friends.push({ id: friendId, name: friendProfile.name, avatar_url: friendProfile.avatar_url, created_at: f.created_at });
-      } else if (f.status === 'pending' && !isRequester) {
-        pending.push({ id: f.id, requester_id: f.requester_id, name: friendProfile.name, avatar_url: friendProfile.avatar_url });
-      }
-    });
+    const { data: pending } = await db.from('friends').select('*, profiles:requester_id(name, avatar_url)').eq('addressee_id', profile.id).eq('status', 'pending');
 
     let pendingHTML = '';
-    if (pending.length > 0) {
+    if (pending && pending.length > 0) {
       pendingHTML = `<div style="margin-bottom: 2rem;"><div class="view-subtitle" style="margin-bottom:1rem;">Solicitações pendentes</div>${pending.map(p => `
         <div class="friend-card" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
           <div style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;" onclick="viewProfile('${p.requester_id}')">
-            <div class="friend-avatar">${p.avatar_url ? `<img src="${p.avatar_url}">` : `<div class="message-avatar-placeholder">${p.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-            <div class="friend-name">${p.name}</div>
+            <div class="friend-avatar">${p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}">` : `<div class="message-avatar-placeholder">${p.profiles?.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
+            <div class="friend-name">${p.profiles?.name || 'Usuário'}</div>
           </div>
           <button class="btn btn-primary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="acceptFriend('${p.id}')">Aceitar</button>
         </div>
@@ -1201,7 +1111,7 @@
     const friendsGrid = friends.map(f => `
       <div class="friend-card" onclick="viewProfile('${f.id}')">
         <div class="friend-avatar">${f.avatar_url ? `<img src="${f.avatar_url}">` : `<div class="message-avatar-placeholder">${f.name?.charAt(0).toUpperCase() || '?'}</div>`}</div>
-        <div class="friend-name">${escapeHtml(f.name)}</div>
+        <div class="friend-name">${escapeHtml(f.name || 'Usuário')}</div>
         <div class="friend-since">Amigos desde ${formatDate(f.created_at)}</div>
       </div>
     `).join('');
@@ -1218,9 +1128,8 @@
   }
 
   async function renderFacetas() {
-    if (!profile || !isValidUUID(profile.id)) return;
+    if (!profile) return;
     const targetId = viewingProfileId || profile.id;
-    if (!isValidUUID(targetId)) return;
     const { data: items, error } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
     const grid = (items || []).map(f => `
@@ -1248,9 +1157,8 @@
   }
 
   async function renderRealismo() {
-    if (!profile || !isValidUUID(profile.id)) return;
+    if (!profile) return;
     const targetId = viewingProfileId || profile.id;
-    if (!isValidUUID(targetId)) return;
     const { data: items, error } = await db.from('realismo').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
     const grid = (items || []).map(r => `
@@ -1277,7 +1185,6 @@
   }
 
   async function openCreateModal(type) {
-    if (!profile || !isValidUUID(profile.id)) return;
     const isFaceta = type === 'faceta';
     const label = isFaceta ? 'Nome do personagem' : 'Título da obra';
     const cta = isFaceta ? 'Criar personagem' : 'Adicionar obra';
@@ -1323,7 +1230,7 @@
 
   /* ---------- RABISCO ---------- */
   async function renderRabisco() {
-    if (!profile || !isValidUUID(profile.id)) return;
+    if (!profile) return;
     if (currentTopicId) return renderTopic();
     const joinedTopics = profile.joined_topics || [];
     let filter = `user_id.eq.${profile.id}`;
@@ -1409,7 +1316,7 @@
   }
 
   async function renderTopic() {
-    if (!profile || !isValidUUID(profile.id)) return;
+    if (!profile) return;
     const { data: topic, error: topicError } = await db.from('topics').select('*').eq('id', currentTopicId).single();
     if (topicError || !topic) { currentTopicId = null; return renderRabisco(); }
     const { data: msgs, error: msgsError } = await db.from('messages').select('*, facetas(name, image_url)').eq('topic_id', topic.id).order('created_at', { ascending: true });
@@ -1429,12 +1336,11 @@
       const authorAvatar = character ? character.image_url : '';
       const initial = authorName.charAt(0).toUpperCase();
       const avatarHTML = authorAvatar ? `<img src="${authorAvatar}" alt="">` : `<div class="message-avatar-placeholder">${initial}</div>`;
-      const authorClick = isValidUUID(m.user_id) ? `onclick="viewProfile('${m.user_id}')"` : '';
       return `<div class="message">
         <div class="message-header">
-          <div class="message-avatar" ${authorClick}>${avatarHTML}</div>
+          <div class="message-avatar" onclick="viewProfile('${m.user_id}')">${avatarHTML}</div>
           <div>
-            <div class="message-author" ${authorClick}>${escapeHtml(authorName)}</div>
+            <div class="message-author" onclick="viewProfile('${m.user_id}')">${escapeHtml(authorName)}</div>
             <div class="message-time">${formatDate(m.created_at)}</div>
           </div>
         </div>
@@ -1453,7 +1359,7 @@
     mainContent.innerHTML = `
       <div class="forum-detail">
         <div class="forum-detail-header"><div><h2>${escapeHtml(topic.title)}</h2><div class="topic-code">Código: ${topic.code}</div></div><div style="display: flex; gap: 0.5rem;"><button class="back-btn" id="backToTopics">← Voltar</button>${deleteBtnHTML}</div></div>
-        ${msgs.length === 0 ? `<div class="empty-state"><h3>Sem mensagens</h3><p>Escreva a primeira mensagem desta página abaixo.</p></div>` : msgsHTML}
+        ${msgs.length === 0 ? `<div class="empty-state"><h3>Sem mensagens</h3><p>Escreva a primera mensagem desta página abaixo.</p></div>` : msgsHTML}
         <div class="composer">
           <div class="mode-toggle"><span class="mode-label">Modo</span><button class="mode-btn active" data-mode="simple" type="button">Simples</button><button class="mode-btn" data-mode="advanced" type="button">Avançado HTML5</button></div>
           <div class="toolbar" id="msgToolbar"><button class="tool-btn" data-cmd="bold" type="button"><b>B</b></button><button class="tool-btn" data-cmd="italic" type="button"><i>I</i></button><button class="tool-btn" data-cmd="underline" type="button"><u>U</u></button><div class="tool-divider"></div><button class="tool-btn" data-cmd="formatBlock" data-val="h2" type="button">Título</button><button class="tool-btn" data-cmd="formatBlock" data-val="blockquote" type="button">Citação</button><button class="tool-btn" data-cmd="formatBlock" data-val="p" type="button">Texto</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="justifyLeft" type="button">⬅</button><button class="tool-btn" data-cmd="justifyCenter" type="button">⬌</button><button class="tool-btn" data-cmd="justifyRight" type="button">➡</button><button class="tool-btn" data-cmd="justifyFull" type="button">⬍</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="insertUnorderedList" type="button">• Lista</button><button class="tool-btn" data-cmd="insertOrderedList" type="button">1. Lista</button><button class="tool-btn" data-cmd="createLink" type="button">🔗 Link</button><button class="tool-btn" data-cmd="formatBlock" data-val="pre" type="button">Código</button></div>
