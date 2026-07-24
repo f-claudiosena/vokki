@@ -133,7 +133,7 @@
   .community-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-top: 1rem; text-align: center; }
   .community-meta-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center; }
   .community-body { padding: 1.5rem; }
-  .community-layout { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 1.5rem; align-items: start; }
+  .community-layout { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2.5fr); gap: 1.5rem; align-items: start; }
   @media (max-width: 820px) { .community-layout { grid-template-columns: 1fr; } }
   .community-sidebar-box { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem 1.1rem; margin-bottom: 1rem; }
   .community-sidebar-box h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin: 0 0 0.7rem; }
@@ -444,7 +444,6 @@
   function openLightbox(html) { lightboxContent.innerHTML = html; lightboxEl.classList.add('show'); }
   function closeLightbox() { lightboxEl.classList.remove('show'); lightboxContent.innerHTML = ''; }
   lightboxEl.addEventListener('click', (e) => { if (e.target === lightboxEl) closeLightbox(); });
-
 
   function processImageUpload(file, maxSize) {
     maxSize = maxSize || 2 * 1024 * 1024;
