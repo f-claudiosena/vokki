@@ -155,11 +155,25 @@
     background-image: none; 
   }
   body.theme-naruto { 
-    --bg: #1a1a1a; --cream: rgba(255, 255, 255, 0.92); --ink: #2a2823; --ink-soft: #555; --ink-faint: #777; 
-    --chamomile: #ff7b00; --chamomile-deep: #cc6300; --chamomile-soft: #ffe0b3; 
-    --line: rgba(0,0,0,0.1); --line-soft: rgba(0,0,0,0.05); 
+    --bg: #1c1408; --cream: rgba(255, 250, 240, 0.94); --ink: #2a1d0e; --ink-soft: #6b4a1f; --ink-faint: #8a6a3f; 
+    --chamomile: #ff7800; --chamomile-deep: #d94f00; --chamomile-soft: #ffdca3; 
+    --line: rgba(0,60,120,0.15); --line-soft: rgba(0,60,120,0.06); --danger: #e0402a;
     background-image: url('https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg'); 
     background-size: cover; background-attachment: fixed; background-position: center; 
+  }
+  body.theme-grifinoria {
+    --bg: #2b0a0a; --cream: #fbf4e4; --ink: #2b0a0a; --ink-soft: #6b3a1f; --ink-faint: #8a6a3f;
+    --chamomile: #ae0001; --chamomile-deep: #740001; --chamomile-soft: #f0c75e33;
+    --line: rgba(174,0,1,0.18); --line-soft: rgba(174,0,1,0.08); --danger: #ae0001;
+    background-image: linear-gradient(160deg, #740001 0%, #740001 45%, #d3a625 45%, #d3a625 55%, #740001 55%, #740001 100%);
+    background-attachment: fixed; background-size: cover;
+  }
+  body.theme-sonserina {
+    --bg: #0a1f16; --cream: #f0f4ef; --ink: #10251a; --ink-soft: #3a5a48; --ink-faint: #5f8070;
+    --chamomile: #1a472a; --chamomile-deep: #0d2818; --chamomile-soft: #aaaaaa55;
+    --line: rgba(26,71,42,0.2); --line-soft: rgba(26,71,42,0.08); --danger: #8a2020;
+    background-image: linear-gradient(160deg, #0d2818 0%, #0d2818 45%, #5d5d5d 45%, #5d5d5d 55%, #0d2818 55%, #0d2818 100%);
+    background-attachment: fixed; background-size: cover;
   }
   body.theme-custom { background-image: none; }
   
@@ -845,8 +859,9 @@
     const pAvatar = authorAvatar ? `<img src="${authorAvatar}">` : `<div class="message-avatar-placeholder">${pInitial}</div>`;
 
     let contentHTML = '';
-    if (p.parent_post) {
-      const op = p.parent_post;
+    let parentPost = Array.isArray(p.parent_post) ? p.parent_post[0] : p.parent_post;
+    if (parentPost && parentPost.id) {
+      const op = parentPost;
       const opObj = Array.isArray(op.author) ? op.author[0] : op.author;
       const opName = opObj?.name || (op.user_id === session.user.id ? profile.name : 'Anônimo');
       const opAvatarUrl = opObj?.avatar_url || (op.user_id === session.user.id ? profile.avatar_url : null);
@@ -1212,6 +1227,8 @@
         ${cardHTML('default', 'Padrão (Camomila)', 'original', 'background: #f7f4ed; color: #a8893f;', 'C')}
         ${cardHTML('gothic', 'Tema Gótico', 'escuro', 'background: #1a1a1a; color: #8a2be2;', 'G')}
         ${cardHTML('naruto', 'Tema Naruto', 'fundo anime', 'background: url("https://i.pinimg.com/736x/06/d2/51/06d25130f5c84e4e6f33e91d2f5a8e08.jpg") center/cover; color: #fff;', 'N')}
+        ${cardHTML('grifinoria', 'Grifinória', 'vermelho e dourado', 'background: linear-gradient(160deg, #740001 45%, #d3a625 45%, #d3a625 55%, #740001 55%); color: #fbf4e4;', 'G')}
+        ${cardHTML('sonserina', 'Sonserina', 'verde e prata', 'background: linear-gradient(160deg, #0d2818 45%, #5d5d5d 45%, #5d5d5d 55%, #0d2818 55%); color: #f0f4ef;', 'S')}
         ${cardHTML('custom', 'Cores Personalizadas', 'escolher hex', 'background: linear-gradient(135deg, #c9a96e 50%, #f7f4ed 50%); color: #fff;', '+')}
       </div>
     `;
@@ -1235,6 +1252,8 @@
         if (themeId === 'default') previewTheme('default');
         else if (themeId === 'gothic') previewTheme('gothic');
         else if (themeId === 'naruto') previewTheme('naruto');
+        else if (themeId === 'grifinoria') previewTheme('grifinoria');
+        else if (themeId === 'sonserina') previewTheme('sonserina');
         else if (themeId === 'custom') {
           openCustomThemeModal();
         }
@@ -1243,7 +1262,7 @@
   }
 
   function previewTheme(themeName) {
-    document.body.classList.remove('theme-gothic', 'theme-naruto', 'theme-custom');
+    document.body.classList.remove('theme-gothic', 'theme-naruto', 'theme-grifinoria', 'theme-sonserina', 'theme-custom');
     document.documentElement.style.removeProperty('--chamomile');
     document.documentElement.style.removeProperty('--chamomile-deep');
     document.documentElement.style.removeProperty('--chamomile-soft');
@@ -1251,6 +1270,8 @@
 
     if (themeName === 'gothic') document.body.classList.add('theme-gothic');
     else if (themeName === 'naruto') document.body.classList.add('theme-naruto');
+    else if (themeName === 'grifinoria') document.body.classList.add('theme-grifinoria');
+    else if (themeName === 'sonserina') document.body.classList.add('theme-sonserina');
   }
 
   function saveTheme(themeName, colors = null) {
@@ -1258,7 +1279,7 @@
     
     if (themeName === 'default') {
       localStorage.removeItem('vokki_theme');
-    } else if (themeName === 'gothic' || themeName === 'naruto') {
+    } else if (themeName === 'gothic' || themeName === 'naruto' || themeName === 'grifinoria' || themeName === 'sonserina') {
       localStorage.setItem('vokki_theme', themeName);
     } else if (themeName === 'custom' && colors) {
       document.body.classList.add('theme-custom');
@@ -1275,6 +1296,8 @@
     const savedTheme = localStorage.getItem('vokki_theme');
     if (savedTheme === 'gothic') document.body.classList.add('theme-gothic');
     else if (savedTheme === 'naruto') document.body.classList.add('theme-naruto');
+    else if (savedTheme === 'grifinoria') document.body.classList.add('theme-grifinoria');
+    else if (savedTheme === 'sonserina') document.body.classList.add('theme-sonserina');
     else if (savedTheme) {
       try {
         const parsed = JSON.parse(savedTheme);
