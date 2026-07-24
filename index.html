@@ -133,9 +133,10 @@
   .community-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-top: 1rem; text-align: center; }
   .community-meta-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center; }
   .community-body { padding: 1.5rem; }
-    .community-layout { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2.5fr); gap: 1.5rem; align-items: start; }
-  @media (max-width: 820px) { .community-layout { grid-template-columns: 1fr; } }
-  .community-sidebar-box { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .community-layout { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2.5fr); gap: 1.5rem; align-items: start; }
+  .community-sidebar-sticky { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 1rem; }
+  @media (max-width: 820px) { .community-layout { grid-template-columns: 1fr; } .community-sidebar-sticky { position: static; } }
+  .community-sidebar-box { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem 1.1rem; }
   .community-sidebar-box h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin: 0 0 0.7rem; }
   .community-sidebar-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; margin-bottom: 0.5rem; color: var(--ink); }
   .community-sidebar-item:last-child { margin-bottom: 0; }
@@ -1683,7 +1684,7 @@
     });
   }
 
-    async function openEditCommunityModal(community) {
+  async function openEditCommunityModal(community) {
     openModal(`
       <div class="modal-header"><h3>Editar comunidade</h3><button class="modal-close" aria-label="Fechar">×</button></div>
       <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-input" id="editCommName" value="${escapeAttr(community.name)}"></div>
@@ -1730,8 +1731,8 @@
       closeModal(); toast('Comunidade atualizada!', 'success'); render();
     });
   }
-  
-    async function renderComunidade() {
+
+  async function renderComunidade() {
     if (!profile || !viewingCommunityId) return;
     if (currentCommunityTopicId) return renderCommunityTopic();
     const communityId = viewingCommunityId;
@@ -1819,7 +1820,7 @@
       if (latest) lastOnlineHTML = `<div class="community-sidebar-item" style="cursor:pointer;" onclick="viewProfile('${latest.id}')">🟢 ${escapeHtml(latest.name)} — ${formatDate(latest.last_seen)}</div>`;
     }
 
-    // LAYOUT INVERTIDO: SIDEBAR NA ESQUERDA, TÓPICOS NA DIREITA (MAIOR)
+    // LAYOUT: SIDEBAR FIXA NA ESQUERDA, TÓPICOS NA DIREITA (MAIOR)
     mainContent.innerHTML = `
       <div class="community-wrapper">
         <div class="community-bg" style="${community.background_url ? `background-image:url('${community.background_url}');` : `background:var(--chamomile-soft);`}">
@@ -1837,7 +1838,7 @@
       <div class="community-body" style="--chamomile: ${community.theme_color || '#a8893f'};">
         ${community.description ? `<p style="margin-bottom:1.5rem; line-height:1.6;">${escapeHtml(community.description)}</p>` : ''}
         <div class="community-layout">
-          <div>
+          <div class="community-sidebar-sticky">
             ${pendingRequestsHTML}
             <div class="community-sidebar-box"><h4>Enquetes atuais</h4>${pollsSidebarHTML}</div>
             <div class="community-sidebar-box"><h4>Eventos atuais</h4>${eventsSidebarHTML}</div>
@@ -1877,7 +1878,7 @@
     });
   }
 
-    async function openCreateCommunityTopicModal(communityId) {
+  async function openCreateCommunityTopicModal(communityId) {
     openModal(`
       <div class="modal-header"><h3>Novo tópico</h3><button class="modal-close" aria-label="Fechar">×</button></div>
       <div class="form-group"><label class="form-label">Tipo</label>
@@ -1966,7 +1967,7 @@
     });
   }
 
-    async function renderCommunityTopic() {
+  async function renderCommunityTopic() {
     const topicId = currentCommunityTopicId;
     const { data: topic, error } = await db.from('community_topics').select('*, author:profiles!community_topics_user_id_fkey(name, avatar_url)').eq('id', topicId).single();
     if (error || !topic) { currentCommunityTopicId = null; return renderComunidade(); }
@@ -2051,8 +2052,6 @@
     document.getElementById('ctReplyBtn').addEventListener('click', sendReply);
     document.getElementById('ctReplyInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendReply(); });
   }
-
-
 
   /* ---------- RECADOS ---------- */
   async function getAcceptedFriends() {
