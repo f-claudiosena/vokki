@@ -118,6 +118,36 @@
   .recado-actions { display: flex; gap: 0.5rem; align-items: center; }
   .recado-composer-input { min-height: 90px; border: 1px solid var(--line); border-radius: 0.6rem; padding: 0.75rem; font-family: inherit; font-size: 0.9rem; background: var(--bg); color: var(--ink); outline: none; }
   .recado-composer-input:empty:before { content: attr(data-placeholder); color: var(--ink-faint); }
+
+  /* Comunidades */
+  .community-card-info .gallery-card-name { display: flex; align-items: center; gap: 0.4rem; }
+  .community-badge { font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .community-badge.publica { background: #dff0d8; color: #3c763d; }
+  .community-badge.moderada { background: #fcf0d0; color: #8a6d1f; }
+  .community-badge.privada { background: #f0d9d9; color: #8a3c3c; }
+  .community-wrapper { border-radius: 1rem; overflow: hidden; margin: -1.5rem -1.5rem 0; }
+  .community-bg { background-size: cover; background-position: center; padding: 2.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; }
+  .community-cover { width: 180px; height: 180px; border-radius: 0.75rem; overflow: hidden; border: 4px solid rgba(255,255,255,0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3); background: var(--cream); flex-shrink: 0; }
+  .community-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .community-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-family: 'Cormorant Garamond', serif; color: var(--ink-faint); }
+  .community-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-top: 1rem; text-align: center; }
+  .community-meta-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center; }
+  .community-body { padding: 1.5rem; }
+  .community-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); gap: 1.5rem; align-items: start; }
+  @media (max-width: 820px) { .community-layout { grid-template-columns: 1fr; } }
+  .community-sidebar-box { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .community-sidebar-box h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin: 0 0 0.7rem; }
+  .community-sidebar-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; margin-bottom: 0.5rem; color: var(--ink); }
+  .community-sidebar-item:last-child { margin-bottom: 0; }
+  .community-poll-option { margin-bottom: 0.6rem; }
+  .community-poll-bar-track { background: var(--bg); border-radius: 0.4rem; overflow: hidden; height: 8px; margin-top: 0.25rem; }
+  .community-poll-bar-fill { background: var(--chamomile); height: 100%; }
+  .community-topic-row { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem 1.1rem; margin-bottom: 0.75rem; cursor: pointer; }
+  .community-topic-row:hover { border-color: var(--chamomile); }
+  .community-topic-row .badge-evento { background: #e0ecf5; color: #2a5a8a; font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 0.3rem; margin-left: 0.4rem; }
+  .community-topic-row .badge-enquete { background: var(--chamomile-soft); color: var(--chamomile-deep); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 0.3rem; margin-left: 0.4rem; }
+  .poll-option-input-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .poll-option-input-row input { flex: 1; }
   .forum-actions { display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; } .forum-create-circle { width: 120px; height: 120px; border-radius: 50%; border: 2px dashed var(--line); background: transparent; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.4rem; cursor: pointer; transition: all 0.3s var(--ease-quiet); color: var(--ink-soft); font-family: inherit; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; } .forum-create-circle:hover { border-color: var(--chamomile); color: var(--chamomile-deep); background: var(--chamomile-soft); transform: scale(1.03); } .forum-create-circle svg { width: 28px; height: 28px; } .forum-find-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); padding: 0.85rem 1.5rem; border-radius: 0.5rem; font-family: inherit; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; transition: all 0.3s var(--ease-quiet); } .forum-find-btn:hover { border-color: var(--ink); background: var(--cream); }
   .forum-list { display: flex; flex-direction: column; gap: 0.85rem; } .forum-topic { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1.5rem; cursor: pointer; transition: all 0.3s var(--ease-quiet); } .forum-topic:hover { border-color: var(--chamomile); transform: translateX(3px); } .forum-topic-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; gap: 1rem; } .forum-topic h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; letter-spacing: -0.01em; overflow-wrap: break-word; word-break: break-word; } .forum-topic-meta { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; flex-shrink: 0; } .forum-topic-preview { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: break-word; word-break: break-word; } .forum-topic-stats { margin-top: 0.75rem; font-size: 0.7rem; color: var(--ink-faint); letter-spacing: 0.1em; }
   .forum-detail { background: var(--cream); border: 1px solid var(--line); border-radius: 1rem; padding: 2rem; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; } .forum-detail-header { border-bottom: 1px solid var(--line); padding-bottom: 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; } .forum-detail-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 500; letter-spacing: -0.01em; overflow-wrap: break-word; word-break: break-word; } .topic-code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 0.15em; margin-top: 0.3rem; } .back-btn { background: none; border: 1px solid var(--line); padding: 0.5rem 1rem; border-radius: 0.4rem; cursor: pointer; font-family: inherit; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); transition: all 0.3s var(--ease-quiet); white-space: nowrap; flex-shrink: 0; } .back-btn:hover { color: var(--ink); border-color: var(--ink); } .delete-btn { color: var(--danger); border-color: var(--danger); } .delete-btn:hover { background: var(--danger); color: var(--cream); border-color: var(--danger); }
@@ -366,6 +396,7 @@
   let previousView = null;
   let previousTopicId = null;
   let notifInterval = null;
+  let lastSeenInterval = null;
   let pendingPostImage = null;
   let currentThemeSelection = 'default';
 
@@ -450,6 +481,32 @@
           const offsetY = (img.height - size) / 2;
           ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
           canvas.toBlob((blob) => { if (blob) resolve(blob); else reject('Falha ao processar a imagem.'); }, 'image/jpeg', 0.88);
+        };
+        img.onerror = () => reject('Não foi possível ler a imagem.');
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject('Não foi possível ler o arquivo.');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function processBackgroundImage(file, maxSize) {
+    maxSize = maxSize || 4 * 1024 * 1024;
+    return new Promise((resolve, reject) => {
+      if (!file) return reject('Nenhum arquivo selecionado.');
+      if (!file.type.startsWith('image/')) return reject('Envie um arquivo de imagem válido.');
+      if (file.size > maxSize) return reject('O arquivo excede o limite de 4 MB.');
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 1600;
+          const scale = Math.min(1, maxW / img.width);
+          const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          canvas.toBlob((blob) => { if (blob) resolve(blob); else reject('Falha ao processar a imagem.'); }, 'image/jpeg', 0.85);
         };
         img.onerror = () => reject('Não foi possível ler a imagem.');
         img.src = e.target.result;
@@ -590,6 +647,13 @@
     loginScreen.style.display = 'none'; appEl.classList.add('show'); renderUserMini(); navigate('inicio'); 
     if (notifInterval) clearInterval(notifInterval);
     notifInterval = setInterval(loadNotifications, 15000); 
+    updateLastSeen();
+    if (lastSeenInterval) clearInterval(lastSeenInterval);
+    lastSeenInterval = setInterval(updateLastSeen, 60000);
+  }
+  async function updateLastSeen() {
+    if (!profile) return;
+    try { await db.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', profile.id); } catch(e) {}
   }
   function renderUserMini() {
     if (!profile) return;
@@ -657,6 +721,7 @@
   });
 
   let currentView = 'inicio'; let currentTopicId = null;
+  let viewingCommunityId = null; let currentCommunityTopicId = null; let previousCommunityId = null;
 
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -702,8 +767,21 @@
     render();
   };
 
+  window.viewCommunity = (communityId) => {
+    previousView = currentView;
+    viewingProfileId = null;
+    viewingCommunityId = communityId;
+    currentCommunityTopicId = null;
+    currentView = 'comunidade';
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', false));
+    document.querySelectorAll('.top-tab').forEach(b => b.classList.toggle('active', false));
+    render();
+  };
+
   function goBack() {
     viewingProfileId = null;
+    viewingCommunityId = null;
+    currentCommunityTopicId = null;
     if (previousView) {
       currentView = previousView;
       currentTopicId = previousTopicId;
@@ -719,7 +797,7 @@
 
   document.querySelectorAll('.top-tab').forEach(btn => btn.addEventListener('click', () => { viewingProfileId = null; navigate(btn.dataset.tab); }));
   function navigate(view) {
-    currentView = view; currentTopicId = null;
+    currentView = view; currentTopicId = null; viewingCommunityId = null; currentCommunityTopicId = null;
     document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === view));
     document.querySelectorAll('.top-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === view));
     render();
@@ -743,6 +821,7 @@
         case 'temas': renderTemas(); break;
         case 'rabisco': await renderRabisco(); break;
         case 'realismo': await renderRealismo(); break;
+        case 'comunidade': await renderComunidade(); break;
         case 'facetas': await renderFacetas(); break;
         default: await renderDashboard();
       }
@@ -1494,12 +1573,25 @@
         ${viewingProfileId ? '' : `<button class="gallery-card-delete" data-delete="${r.id}" aria-label="Remover">×</button>`}
       </div>
     `).join('');
+
+    const { data: communities } = await db.from('communities').select('*').eq('creator_id', targetId).order('created_at', { ascending: false });
+    const communitiesGrid = (communities || []).map(c => `
+      <div class="gallery-card" data-open-community="${c.id}">
+        <div class="gallery-card-image">${c.cover_url ? `<img src="${c.cover_url}" alt="${escapeAttr(c.name)}">` : `<div class="gallery-card-image-placeholder">${c.name.charAt(0).toUpperCase()}</div>`}</div>
+        <div class="gallery-card-info community-card-info"><div class="gallery-card-name">${escapeHtml(c.name)} <span class="community-badge ${c.privacy}">${privacyLabel(c.privacy)}</span></div><div class="gallery-card-meta">comunidade</div></div>
+      </div>
+    `).join('');
+
     mainContent.innerHTML = `
       <div class="view-header"><div><div class="view-title">Realismo</div></div><div class="view-subtitle">${items?.length || 0} ${(items?.length || 0) === 1 ? 'obra' : 'obras'}</div></div>
       <div class="gallery-grid">${grid}${viewingProfileId ? '' : `<button class="gallery-add" id="addRealismo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar obra</button>`}</div>
+
+      <div style="margin-top: 2.5rem; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 500;">Comunidades</div>
+      <div class="gallery-grid">${communitiesGrid}${viewingProfileId ? '' : `<button class="gallery-add" id="addComunidade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Criar comunidade</button>`}</div>
     `;
     if (!viewingProfileId) {
       document.getElementById('addRealismo').addEventListener('click', () => openCreateModal('realismo'));
+      document.getElementById('addComunidade').addEventListener('click', () => openCreateCommunityModal());
       document.querySelectorAll('.gallery-card-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           e.stopPropagation(); const id = btn.dataset.delete;
@@ -1508,7 +1600,370 @@
         });
       });
     }
+    document.querySelectorAll('[data-open-community]').forEach(card => {
+      card.addEventListener('click', () => viewCommunity(card.dataset.openCommunity));
+    });
   }
+
+  function privacyLabel(p) { return p === 'moderada' ? 'Moderada' : p === 'privada' ? 'Privada' : 'Pública'; }
+
+  /* ---------- COMUNIDADES ---------- */
+  async function openCreateCommunityModal() {
+    openModal(`
+      <div class="modal-header"><h3>Nova comunidade</h3><button class="modal-close" aria-label="Fechar">×</button></div>
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-input" id="communityName" maxlength="80"></div>
+      <div class="form-group"><label class="form-label">Capa (1:1)</label><div class="upload-zone" id="communityCoverZone"><div class="upload-preview" id="communityCoverPreview"><div class="upload-preview-placeholder">+</div></div><div class="upload-hint"><strong>Clique para enviar</strong><br>Será cortada ao centro em <strong>1:1</strong>.</div><input type="file" id="communityCoverInput" accept="image/*" style="display:none"></div></div>
+      <div class="form-group"><label class="form-label">Plano de fundo (opcional)</label><div class="upload-zone" id="communityBgZone"><div class="upload-preview" id="communityBgPreview"><div class="upload-preview-placeholder">+</div></div><div class="upload-hint"><strong>Clique para enviar</strong><br>Imagem larga, sem corte.</div><input type="file" id="communityBgInput" accept="image/*" style="display:none"></div></div>
+      <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-input" id="communityDescription" maxlength="1000" rows="3" style="resize:vertical;"></textarea></div>
+      <div class="form-group"><label class="form-label">Cor do tema</label><input type="color" id="communityThemeColor" value="#a8893f" style="width:60px; height:36px; border:1px solid var(--line); border-radius:0.4rem; padding:2px;"></div>
+      <div class="form-group"><label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; cursor:pointer;"><input type="checkbox" id="communityAdult"> Conteúdo adulto (+18)</label></div>
+      <div class="form-group"><label class="form-label">Privacidade</label>
+        <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.85rem; margin-bottom:0.5rem; cursor:pointer;"><input type="radio" name="communityPrivacy" value="publica" checked style="margin-top:0.2rem;"> <span><strong>Pública</strong> — qualquer um vê e participa.</span></label>
+        <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.85rem; margin-bottom:0.5rem; cursor:pointer;"><input type="radio" name="communityPrivacy" value="moderada" style="margin-top:0.2rem;"> <span><strong>Moderada</strong> — conteúdo visível a todos, mas precisa pedir para entrar e postar.</span></label>
+        <label style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.85rem; cursor:pointer;"><input type="radio" name="communityPrivacy" value="privada" style="margin-top:0.2rem;"> <span><strong>Privada</strong> — só a capa e a descrição são visíveis; conteúdo e membros ficam escondidos até aceitarem seu pedido.</span></label>
+      </div>
+      <div class="edit-actions"><button class="btn btn-secondary" id="cancelCommunityBtn" type="button">Cancelar</button><button class="btn btn-primary" id="saveCommunityBtn" type="button" style="width:auto">Criar comunidade</button></div>
+    `);
+    let pendingCover = null, pendingBg = null;
+    const coverZone = document.getElementById('communityCoverZone');
+    const coverInput = document.getElementById('communityCoverInput');
+    const coverPreview = document.getElementById('communityCoverPreview');
+    coverZone.addEventListener('click', () => coverInput.click());
+    coverInput.addEventListener('change', async () => {
+      const file = coverInput.files[0]; if (!file) return;
+      try {
+        const blob = await processGalleryImage(file);
+        pendingCover = blob;
+        coverPreview.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="">`;
+      } catch(err) { toast(err, 'error'); }
+    });
+    const bgZone = document.getElementById('communityBgZone');
+    const bgInput = document.getElementById('communityBgInput');
+    const bgPreview = document.getElementById('communityBgPreview');
+    bgZone.addEventListener('click', () => bgInput.click());
+    bgInput.addEventListener('change', async () => {
+      const file = bgInput.files[0]; if (!file) return;
+      try {
+        const blob = await processBackgroundImage(file);
+        pendingBg = blob;
+        bgPreview.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="">`;
+      } catch(err) { toast(err, 'error'); }
+    });
+    document.querySelector('.modal-close').addEventListener('click', closeModal);
+    document.getElementById('cancelCommunityBtn').addEventListener('click', closeModal);
+    document.getElementById('saveCommunityBtn').addEventListener('click', async () => {
+      const name = document.getElementById('communityName').value.trim();
+      if (!name) { toast('Dê um nome à comunidade.', 'error'); return; }
+      const description = document.getElementById('communityDescription').value.trim();
+      const themeColor = document.getElementById('communityThemeColor').value;
+      const isAdult = document.getElementById('communityAdult').checked;
+      const privacy = document.querySelector('input[name="communityPrivacy"]:checked').value;
+      const saveBtn = document.getElementById('saveCommunityBtn');
+      saveBtn.textContent = 'Criando...'; saveBtn.disabled = true;
+      try {
+        let coverUrl = null, bgUrl = null;
+        if (pendingCover) coverUrl = await uploadFile('gallery', `community_cover_${profile.id}_${Date.now()}.jpg`, pendingCover);
+        if (pendingBg) bgUrl = await uploadFile('gallery', `community_bg_${profile.id}_${Date.now()}.jpg`, pendingBg);
+        const { data: community, error: insertError } = await db.from('communities').insert([{
+          creator_id: profile.id, name, cover_url: coverUrl, background_url: bgUrl, description,
+          is_adult: isAdult, privacy, theme_color: themeColor
+        }]).select().single();
+        if (insertError) { toast('Erro ao criar: ' + insertError.message, 'error'); saveBtn.textContent = 'Criar comunidade'; saveBtn.disabled = false; return; }
+        await db.from('community_members').insert([{ community_id: community.id, user_id: profile.id, role: 'owner' }]);
+        closeModal(); toast('Comunidade criada!', 'success');
+        viewCommunity(community.id);
+      } catch (err) { toast(err.message || 'Erro ao criar comunidade.', 'error'); saveBtn.textContent = 'Criar comunidade'; saveBtn.disabled = false; }
+    });
+  }
+
+  async function renderComunidade() {
+    if (!profile || !viewingCommunityId) return;
+    if (currentCommunityTopicId) return renderCommunityTopic();
+    const communityId = viewingCommunityId;
+    const { data: community, error } = await db.from('communities').select('*').eq('id', communityId).single();
+    if (error || !community) { mainContent.innerHTML = `<div class="empty-state"><h3>Comunidade não encontrada</h3></div>`; return; }
+
+    const isCreator = community.creator_id === profile.id;
+    const { data: membership } = await db.from('community_members').select('*').eq('community_id', communityId).eq('user_id', profile.id).maybeSingle();
+    const isMember = isCreator || membership?.role === 'owner' || membership?.role === 'member';
+    const isPending = membership?.role === 'pending';
+    const canSeeContent = community.privacy !== 'privada' || isMember;
+    const canSeeMembers = community.privacy !== 'privada' || isMember;
+
+    const { count: memberCount } = await db.from('community_members').select('*', { count: 'exact', head: true }).eq('community_id', communityId).in('role', ['owner', 'member']);
+
+    let joinButtonHTML = '';
+    if (!isCreator) {
+      if (isMember) joinButtonHTML = `<button class="btn btn-secondary" disabled>Você é membro</button>`;
+      else if (isPending) joinButtonHTML = `<button class="btn btn-secondary" disabled>Pedido enviado</button>`;
+      else if (community.privacy === 'publica') joinButtonHTML = `<button class="btn btn-primary" id="joinCommunityBtn" style="width:auto;">Participar</button>`;
+      else joinButtonHTML = `<button class="btn btn-primary" id="joinCommunityBtn" style="width:auto;">Pedir para entrar</button>`;
+    }
+
+    let pendingRequestsHTML = '';
+    if (isCreator) {
+      const { data: pendingReqs } = await db.from('community_members').select('*, requester:profiles!community_members_user_id_fkey(name, avatar_url)').eq('community_id', communityId).eq('role', 'pending');
+      if (pendingReqs && pendingReqs.length > 0) {
+        pendingRequestsHTML = `<div class="community-sidebar-box"><h4>Pedidos pendentes</h4>${pendingReqs.map(r => {
+          const rObj = Array.isArray(r.requester) ? r.requester[0] : r.requester;
+          return `<div class="community-sidebar-item" style="justify-content:space-between;"><span>${escapeHtml(rObj?.name || 'Usuário')}</span><button class="btn btn-primary" data-approve="${r.id}" style="width:auto; padding:0.25rem 0.6rem; font-size:0.75rem;">Aceitar</button></div>`;
+        }).join('')}</div>`;
+      }
+    }
+
+    let topicsHTML = '<div class="empty-state"><p>Entre na comunidade para ver os tópicos.</p></div>';
+    let pollsSidebarHTML = '<p style="font-size:0.8rem; color:var(--ink-soft);">Nenhuma enquete ativa.</p>';
+    let eventsSidebarHTML = '<p style="font-size:0.8rem; color:var(--ink-soft);">Nenhum evento marcado.</p>';
+    let topPosterHTML = '<p style="font-size:0.8rem; color:var(--ink-soft);">Sem atividade recente.</p>';
+
+    if (canSeeContent) {
+      const { data: topics } = await db.from('community_topics').select('*, author:profiles!community_topics_user_id_fkey(name)').eq('community_id', communityId).order('created_at', { ascending: false });
+      topicsHTML = (topics || []).map(t => {
+        const authorObj = Array.isArray(t.author) ? t.author[0] : t.author;
+        return `
+          <div class="community-topic-row" data-topic="${t.id}">
+            <strong>${escapeHtml(t.title)}</strong>
+            ${t.type === 'evento' ? '<span class="badge-evento">Evento</span>' : ''}
+            ${t.type === 'enquete' ? '<span class="badge-enquete">Enquete</span>' : ''}
+            <div style="font-size:0.8rem; color:var(--ink-soft); margin-top:0.3rem;">por ${escapeHtml(authorObj?.name || 'Usuário')} · ${formatDate(t.created_at)}</div>
+          </div>
+        `;
+      }).join('') || '<div class="empty-state"><p>Nenhum tópico ainda.</p></div>';
+
+      const polls = (topics || []).filter(t => t.type === 'enquete').slice(0, 5);
+      if (polls.length > 0) pollsSidebarHTML = polls.map(p => `<div class="community-sidebar-item" style="cursor:pointer;" data-goto-topic="${p.id}">🗳️ ${escapeHtml(p.title)}</div>`).join('');
+
+      const events = (topics || []).filter(t => t.type === 'evento').slice(0, 5);
+      if (events.length > 0) eventsSidebarHTML = events.map(e => `<div class="community-sidebar-item" style="cursor:pointer;" data-goto-topic="${e.id}">📅 ${escapeHtml(e.title)}${e.event_date ? ' — ' + formatDate(e.event_date) : ''}</div>`).join('');
+
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const topicIds = (topics || []).map(t => t.id);
+      const countMap = {};
+      (topics || []).forEach(t => { if (t.created_at >= sevenDaysAgo) countMap[t.user_id] = (countMap[t.user_id] || 0) + 1; });
+      if (topicIds.length > 0) {
+        const { data: repliesData } = await db.from('community_topic_replies').select('user_id, created_at').in('topic_id', topicIds).gte('created_at', sevenDaysAgo);
+        (repliesData || []).forEach(r => { countMap[r.user_id] = (countMap[r.user_id] || 0) + 1; });
+      }
+      const topUserId = Object.keys(countMap).sort((a, b) => countMap[b] - countMap[a])[0];
+      if (topUserId) {
+        const { data: topUserProfile } = await db.from('profiles').select('name').eq('id', topUserId).maybeSingle();
+        if (topUserProfile) topPosterHTML = `<div class="community-sidebar-item" style="cursor:pointer;" onclick="viewProfile('${topUserId}')">🏆 ${escapeHtml(topUserProfile.name)} (${countMap[topUserId]} ${countMap[topUserId] === 1 ? 'postagem' : 'postagens'})</div>`;
+      }
+    }
+
+    let lastOnlineHTML = '<p style="font-size:0.8rem; color:var(--ink-soft);">Sem dados.</p>';
+    if (canSeeMembers) {
+      const { data: members } = await db.from('community_members').select('user_id, member:profiles!community_members_user_id_fkey(name, last_seen)').eq('community_id', communityId).in('role', ['owner', 'member']);
+      let latest = null;
+      (members || []).forEach(m => {
+        const mObj = Array.isArray(m.member) ? m.member[0] : m.member;
+        if (mObj?.last_seen && (!latest || mObj.last_seen > latest.last_seen)) latest = { name: mObj.name, last_seen: mObj.last_seen, id: m.user_id };
+      });
+      if (latest) lastOnlineHTML = `<div class="community-sidebar-item" style="cursor:pointer;" onclick="viewProfile('${latest.id}')">🟢 ${escapeHtml(latest.name)} — ${formatDate(latest.last_seen)}</div>`;
+    }
+
+    mainContent.innerHTML = `
+      <div class="community-wrapper">
+        <div class="community-bg" style="${community.background_url ? `background-image:url('${community.background_url}');` : `background:var(--chamomile-soft);`}">
+          <button class="btn btn-secondary" id="backFromCommunityBtn" style="width:auto; align-self:flex-start; margin-bottom:1rem;">← Voltar</button>
+          <div class="community-cover">${community.cover_url ? `<img src="${community.cover_url}" alt="${escapeAttr(community.name)}">` : `<div class="community-cover-placeholder">${community.name.charAt(0).toUpperCase()}</div>`}</div>
+          <div class="community-name">${escapeHtml(community.name)}</div>
+          <div class="community-meta-row">
+            <span class="community-badge ${community.privacy}">${privacyLabel(community.privacy)}</span>
+            ${community.is_adult ? '<span class="community-badge privada">+18</span>' : ''}
+            <span style="font-size:0.8rem; color:var(--ink-soft);">${memberCount || 0} ${(memberCount || 0) === 1 ? 'membro' : 'membros'}</span>
+          </div>
+          <div style="margin-top:1rem;">${joinButtonHTML}</div>
+        </div>
+      </div>
+      <div class="community-body" style="--chamomile: ${community.theme_color || '#a8893f'};">
+        ${community.description ? `<p style="margin-bottom:1.5rem; line-height:1.6;">${escapeHtml(community.description)}</p>` : ''}
+        <div class="community-layout">
+          <div>
+            <div class="view-header" style="margin-bottom:1rem;"><div class="view-title" style="font-size:1.2rem;">Tópicos e fóruns</div>${canSeeContent && isMember ? `<button class="btn btn-primary" id="newCommunityTopicBtn" style="width:auto;">Criar tópico</button>` : ''}</div>
+            ${topicsHTML}
+          </div>
+          <div>
+            ${pendingRequestsHTML}
+            <div class="community-sidebar-box"><h4>Enquetes atuais</h4>${pollsSidebarHTML}</div>
+            <div class="community-sidebar-box"><h4>Eventos atuais</h4>${eventsSidebarHTML}</div>
+            <div class="community-sidebar-box"><h4>Mais ativo (7 dias)</h4>${topPosterHTML}</div>
+            <div class="community-sidebar-box"><h4>Último online</h4>${lastOnlineHTML}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('backFromCommunityBtn').addEventListener('click', () => { viewingCommunityId = null; goBack(); });
+    const joinBtn = document.getElementById('joinCommunityBtn');
+    if (joinBtn) joinBtn.addEventListener('click', async () => {
+      const role = community.privacy === 'publica' ? 'member' : 'pending';
+      const { error: joinError } = await db.from('community_members').insert([{ community_id: communityId, user_id: profile.id, role }]);
+      if (joinError) { toast('Erro ao entrar: ' + joinError.message, 'error'); return; }
+      toast(role === 'member' ? 'Você entrou na comunidade!' : 'Pedido enviado!', 'success');
+      render();
+    });
+    document.querySelectorAll('[data-approve]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await db.from('community_members').update({ role: 'member' }).eq('id', btn.dataset.approve);
+        toast('Membro aceito!', 'success');
+        render();
+      });
+    });
+    const newTopicBtn = document.getElementById('newCommunityTopicBtn');
+    if (newTopicBtn) newTopicBtn.addEventListener('click', () => openCreateCommunityTopicModal(communityId));
+    document.querySelectorAll('[data-topic], [data-goto-topic]').forEach(el => {
+      el.addEventListener('click', () => { currentCommunityTopicId = el.dataset.topic || el.dataset.gotoTopic; render(); });
+    });
+  }
+
+  async function openCreateCommunityTopicModal(communityId) {
+    openModal(`
+      <div class="modal-header"><h3>Novo tópico</h3><button class="modal-close" aria-label="Fechar">×</button></div>
+      <div class="form-group"><label class="form-label">Tipo</label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; margin-bottom:0.4rem; cursor:pointer;"><input type="radio" name="topicType" value="topico" checked> Tópico normal</label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; margin-bottom:0.4rem; cursor:pointer;"><input type="radio" name="topicType" value="evento"> Evento</label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;"><input type="radio" name="topicType" value="enquete"> Enquete</label>
+      </div>
+      <div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="ctTitle" maxlength="120"></div>
+      <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-input" id="ctContent" rows="4" style="resize:vertical;"></textarea></div>
+      <div class="form-group" id="ctEventGroup" style="display:none;"><label class="form-label">Data do evento</label><input type="datetime-local" class="form-input" id="ctEventDate"></div>
+      <div class="form-group" id="ctPollGroup" style="display:none;">
+        <label class="form-label">Opções da enquete</label>
+        <div id="ctPollOptions">
+          <div class="poll-option-input-row"><input type="text" class="form-input ct-poll-opt" placeholder="Opção 1"></div>
+          <div class="poll-option-input-row"><input type="text" class="form-input ct-poll-opt" placeholder="Opção 2"></div>
+        </div>
+        <button class="btn btn-secondary" id="ctAddOption" type="button" style="width:auto; font-size:0.8rem;">+ Adicionar opção</button>
+      </div>
+      <div class="edit-actions"><button class="btn btn-secondary" id="cancelCtBtn" type="button">Cancelar</button><button class="btn btn-primary" id="saveCtBtn" type="button" style="width:auto">Criar</button></div>
+    `);
+    document.querySelector('.modal-close').addEventListener('click', closeModal);
+    document.getElementById('cancelCtBtn').addEventListener('click', closeModal);
+    document.querySelectorAll('input[name="topicType"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const type = document.querySelector('input[name="topicType"]:checked').value;
+        document.getElementById('ctEventGroup').style.display = type === 'evento' ? 'block' : 'none';
+        document.getElementById('ctPollGroup').style.display = type === 'enquete' ? 'block' : 'none';
+      });
+    });
+    document.getElementById('ctAddOption').addEventListener('click', () => {
+      const row = document.createElement('div');
+      row.className = 'poll-option-input-row';
+      row.innerHTML = `<input type="text" class="form-input ct-poll-opt" placeholder="Nova opção">`;
+      document.getElementById('ctPollOptions').appendChild(row);
+    });
+    document.getElementById('saveCtBtn').addEventListener('click', async () => {
+      const title = document.getElementById('ctTitle').value.trim();
+      if (!title) { toast('Dê um título ao tópico.', 'error'); return; }
+      const content = document.getElementById('ctContent').value.trim();
+      const type = document.querySelector('input[name="topicType"]:checked').value;
+      const eventDate = type === 'evento' ? document.getElementById('ctEventDate').value : null;
+      const saveBtn = document.getElementById('saveCtBtn');
+      saveBtn.textContent = 'Criando...'; saveBtn.disabled = true;
+      const { data: topic, error: topicError } = await db.from('community_topics').insert([{
+        community_id: communityId, user_id: profile.id, title, content, type,
+        event_date: eventDate || null
+      }]).select().single();
+      if (topicError) { toast('Erro ao criar tópico: ' + topicError.message, 'error'); saveBtn.textContent = 'Criar'; saveBtn.disabled = false; return; }
+      if (type === 'enquete') {
+        const options = Array.from(document.querySelectorAll('.ct-poll-opt')).map(i => i.value.trim()).filter(Boolean);
+        if (options.length >= 2) {
+          await db.from('community_poll_options').insert(options.map(opt => ({ topic_id: topic.id, option_text: opt })));
+        }
+      }
+      closeModal(); toast('Tópico criado!', 'success');
+      currentCommunityTopicId = topic.id; render();
+    });
+  }
+
+  async function renderCommunityTopic() {
+    const topicId = currentCommunityTopicId;
+    const { data: topic, error } = await db.from('community_topics').select('*, author:profiles!community_topics_user_id_fkey(name, avatar_url)').eq('id', topicId).single();
+    if (error || !topic) { currentCommunityTopicId = null; return renderComunidade(); }
+    const authorObj = Array.isArray(topic.author) ? topic.author[0] : topic.author;
+
+    const { data: replies } = await db.from('community_topic_replies').select('*, author:profiles!community_topic_replies_user_id_fkey(name, avatar_url)').eq('topic_id', topicId).order('created_at', { ascending: true });
+    const repliesHTML = (replies || []).map(r => {
+      const rObj = Array.isArray(r.author) ? r.author[0] : r.author;
+      const rName = rObj?.name || 'Usuário';
+      const rAvatar = rObj?.avatar_url ? `<img src="${rObj.avatar_url}">` : `<div class="ph">${rName.charAt(0).toUpperCase()}</div>`;
+      return `
+        <div class="comment-item">
+          <div class="comment-item-avatar" onclick="viewProfile('${r.user_id}')">${rAvatar}</div>
+          <div class="comment-item-body">
+            <div class="comment-item-author" onclick="viewProfile('${r.user_id}')">${escapeHtml(rName)}</div>
+            <div class="comment-item-content">${escapeHtml(r.content)}</div>
+          </div>
+        </div>
+      `;
+    }).join('') || '<p style="color:var(--ink-soft); font-size:0.85rem;">Nenhuma resposta ainda.</p>';
+
+    let pollHTML = '';
+    if (topic.type === 'enquete') {
+      const { data: options } = await db.from('community_poll_options').select('*, votes:community_poll_votes(user_id)').eq('topic_id', topicId);
+      const totalVotes = (options || []).reduce((sum, o) => sum + (o.votes?.length || 0), 0);
+      const myVote = (options || []).find(o => (o.votes || []).some(v => v.user_id === profile.id));
+      pollHTML = `<div style="margin:1rem 0;">${(options || []).map(o => {
+        const count = o.votes?.length || 0;
+        const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+        return `
+          <div class="community-poll-option">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+              <span>${myVote ? '' : `<button class="btn btn-secondary" data-vote="${o.id}" style="width:auto; padding:0.15rem 0.5rem; font-size:0.75rem; margin-right:0.4rem;">Votar</button>`}${escapeHtml(o.option_text)}</span>
+              <span>${pct}% (${count})</span>
+            </div>
+            <div class="community-poll-bar-track"><div class="community-poll-bar-fill" style="width:${pct}%;"></div></div>
+          </div>
+        `;
+      }).join('')}</div>`;
+    }
+
+    let eventHTML = '';
+    if (topic.type === 'evento' && topic.event_date) {
+      eventHTML = `<div style="margin:1rem 0; padding:0.75rem 1rem; background:var(--chamomile-soft); border-radius:0.6rem; font-size:0.9rem;">📅 Evento marcado para ${formatDate(topic.event_date)}</div>`;
+    }
+
+    mainContent.innerHTML = `
+      <div class="view-header"><button class="btn btn-secondary" id="backFromTopicBtn" style="width:auto;">← Voltar à comunidade</button></div>
+      <div class="community-sidebar-box">
+        <h4 style="margin-bottom:0.3rem;">${topic.type === 'evento' ? '📅 Evento' : topic.type === 'enquete' ? '🗳️ Enquete' : 'Tópico'}</h4>
+        <div style="font-family:'Cormorant Garamond', serif; font-size:1.6rem; font-weight:600; margin-bottom:0.4rem;">${escapeHtml(topic.title)}</div>
+        <div style="font-size:0.8rem; color:var(--ink-soft); margin-bottom:0.6rem;">por ${escapeHtml(authorObj?.name || 'Usuário')} · ${formatDate(topic.created_at)}</div>
+        ${topic.content ? `<p style="line-height:1.6;">${escapeHtml(topic.content)}</p>` : ''}
+        ${eventHTML}
+        ${pollHTML}
+      </div>
+      <div style="margin-top:1.5rem;">
+        <div class="view-subtitle" style="margin-bottom:0.75rem;">Respostas</div>
+        ${repliesHTML}
+        <div class="comment-input-area" style="margin-top:1rem;">
+          <input type="text" id="ctReplyInput" placeholder="Escreva uma resposta...">
+          <button id="ctReplyBtn">Enviar</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('backFromTopicBtn').addEventListener('click', () => { currentCommunityTopicId = null; render(); });
+    document.querySelectorAll('[data-vote]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const { error: voteError } = await db.from('community_poll_votes').insert([{ option_id: btn.dataset.vote, user_id: profile.id }]);
+        if (voteError) { toast('Erro ao votar: ' + voteError.message, 'error'); return; }
+        render();
+      });
+    });
+    const sendReply = async () => {
+      const input = document.getElementById('ctReplyInput');
+      const content = input.value.trim();
+      if (!content) return;
+      const { error: replyError } = await db.from('community_topic_replies').insert([{ topic_id: topicId, user_id: profile.id, content }]);
+      if (replyError) { toast('Erro ao responder: ' + replyError.message, 'error'); return; }
+      input.value = ''; render();
+    };
+    document.getElementById('ctReplyBtn').addEventListener('click', sendReply);
+    document.getElementById('ctReplyInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendReply(); });
+  }
+
+
 
   /* ---------- RECADOS ---------- */
   async function getAcceptedFriends() {
@@ -1595,11 +2050,23 @@
     openModal(`
       <div class="modal-header"><h3>${prefilledId ? `Recado para ${escapeHtml(prefilledName || '')}` : 'Novo recado'}</h3><button class="modal-close" aria-label="Fechar">×</button></div>
       ${friendOptionsHTML}
-      <div class="form-group"><label class="form-label">Mensagem</label><div class="recado-composer-input" id="recadoComposerInput" contenteditable="true" data-placeholder="Escreva seu recado..."></div></div>
+      <div class="form-group"><label class="form-label">Mensagem</label>
+        <div class="toolbar" id="recadoToolbar"><button class="tool-btn" data-cmd="bold" type="button"><b>B</b></button><button class="tool-btn" data-cmd="italic" type="button"><i>I</i></button><button class="tool-btn" data-cmd="underline" type="button"><u>U</u></button><div class="tool-divider"></div><button class="tool-btn" data-cmd="insertUnorderedList" type="button">• Lista</button><button class="tool-btn" data-cmd="createLink" type="button">🔗 Link</button></div>
+        <div class="recado-composer-input" id="recadoComposerInput" contenteditable="true" data-placeholder="Escreva seu recado..."></div>
+      </div>
       <div class="edit-actions"><button class="btn btn-secondary" id="cancelRecadoBtn" type="button">Cancelar</button><button class="btn btn-primary" id="sendRecadoModalBtn" type="button" style="width:auto">Enviar</button></div>
     `);
     document.querySelector('.modal-close').addEventListener('click', closeModal);
     document.getElementById('cancelRecadoBtn').addEventListener('click', closeModal);
+    const recadoInput = document.getElementById('recadoComposerInput');
+    document.getElementById('recadoToolbar').querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); const cmd = btn.dataset.cmd; const val = btn.dataset.val; recadoInput.focus();
+        if (cmd === 'createLink') { const url = prompt('Endereço do link:', 'https://'); if (url) document.execCommand('createLink', false, url); }
+        else if (cmd === 'formatBlock') { document.execCommand('formatBlock', false, val); }
+        else { document.execCommand(cmd, false, null); }
+      });
+    });
     document.getElementById('sendRecadoModalBtn').addEventListener('click', async () => {
       const input = document.getElementById('recadoComposerInput');
       const content = input.innerHTML;
