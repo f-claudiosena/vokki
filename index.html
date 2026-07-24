@@ -133,7 +133,7 @@
   .community-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-top: 1rem; text-align: center; }
   .community-meta-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.4rem; flex-wrap: wrap; justify-content: center; }
   .community-body { padding: 1.5rem; }
-  .community-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); gap: 1.5rem; align-items: start; }
+    .community-layout { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2.5fr); gap: 1.5rem; align-items: start; }
   @media (max-width: 820px) { .community-layout { grid-template-columns: 1fr; } }
   .community-sidebar-box { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1rem 1.1rem; margin-bottom: 1rem; }
   .community-sidebar-box h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin: 0 0 0.7rem; }
@@ -220,10 +220,17 @@
   
   /* TEMAS */
   body.theme-gothic { 
-    --bg: #121212; --cream: #1e1e1e; --ink: #e0e0e0; --ink-soft: #a0a0a0; --ink-faint: #707070; 
-    --chamomile: #8a2be2; --chamomile-deep: #9400d3; --chamomile-soft: #2a243a; 
+    --bg: #0a0a0a; --cream: #141414; --ink: #d4d4d4; --ink-soft: #a0a0a0; --ink-faint: #707070; 
+    --chamomile: #8a2be2; --chamomile-deep: #9400d3; --chamomile-soft: #1a1a2a; 
     --line: rgba(255,255,255,0.1); --line-soft: rgba(255,255,255,0.05); --danger: #ff4c4c; 
-    background-image: none; 
+    background-image: url('https://images.unsplash.com/photo-1577083552431-6e5fd01988ec?q=80&w=2000&auto=format&fit=crop'); 
+    background-size: cover; background-attachment: fixed; background-position: center; 
+  }
+  /* Fundo sombrio específico para o cartão de perfil no tema gótico */
+  body.theme-gothic .profile-card {
+    background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(20, 20, 20, 0.95)), url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=1000&auto=format&fit=crop');
+    background-size: cover; background-position: center;
+    border-color: #8a2be2;
   }
   body.theme-naruto { 
     --bg: #1c1408; --cream: rgba(255, 250, 240, 0.94); --ink: #2a1d0e; --ink-soft: #6b4a1f; --ink-faint: #8a6a3f; 
@@ -1676,7 +1683,55 @@
     });
   }
 
-  async function renderComunidade() {
+    async function openEditCommunityModal(community) {
+    openModal(`
+      <div class="modal-header"><h3>Editar comunidade</h3><button class="modal-close" aria-label="Fechar">×</button></div>
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-input" id="editCommName" value="${escapeAttr(community.name)}"></div>
+      <div class="form-group"><label class="form-label">Capa (1:1)</label><div class="upload-zone" id="editCommCoverZone"><div class="upload-preview" id="editCommCoverPreview">${community.cover_url ? `<img src="${community.cover_url}" alt="">` : `<div class="upload-preview-placeholder">+</div>`}</div><div class="upload-hint"><strong>Clique para alterar</strong></div><input type="file" id="editCommCoverInput" accept="image/*" style="display:none"></div></div>
+      <div class="form-group"><label class="form-label">Plano de fundo</label><div class="upload-zone" id="editCommBgZone"><div class="upload-preview" id="editCommBgPreview" style="height:100px;">${community.background_url ? `<img src="${community.background_url}" alt="">` : `<div class="upload-preview-placeholder">+</div>`}</div><div class="upload-hint"><strong>Clique para alterar</strong></div><input type="file" id="editCommBgInput" accept="image/*" style="display:none"></div></div>
+      <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-input" id="editCommDesc" rows="3" style="resize:vertical;">${escapeHtml(community.description || '')}</textarea></div>
+      <div class="form-group"><label class="form-label">Cor do tema</label><input type="color" id="editCommColor" value="${community.theme_color || '#a8893f'}" style="width:60px; height:36px; border:1px solid var(--line); border-radius:0.4rem; padding:2px;"></div>
+      <div class="edit-actions"><button class="btn btn-secondary" id="cancelEditCommBtn" type="button">Cancelar</button><button class="btn btn-primary" id="saveEditCommBtn" type="button" style="width:auto">Salvar</button></div>
+    `);
+
+    let pendingCover = null, pendingBg = null;
+    
+    const coverZone = document.getElementById('editCommCoverZone');
+    const coverInput = document.getElementById('editCommCoverInput');
+    coverZone.addEventListener('click', () => coverInput.click());
+    coverInput.addEventListener('change', async () => {
+      try { pendingCover = await processGalleryImage(coverInput.files[0]); document.getElementById('editCommCoverPreview').innerHTML = `<img src="${URL.createObjectURL(pendingCover)}" alt="">`; } catch(e) { toast(e, 'error'); }
+    });
+
+    const bgZone = document.getElementById('editCommBgZone');
+    const bgInput = document.getElementById('editCommBgInput');
+    bgZone.addEventListener('click', () => bgInput.click());
+    bgInput.addEventListener('change', async () => {
+      try { pendingBg = await processBackgroundImage(bgInput.files[0]); document.getElementById('editCommBgPreview').innerHTML = `<img src="${URL.createObjectURL(pendingBg)}" alt="">`; } catch(e) { toast(e, 'error'); }
+    });
+
+    document.getElementById('cancelEditCommBtn').addEventListener('click', closeModal);
+    document.querySelector('.modal-close').addEventListener('click', closeModal);
+    document.getElementById('saveEditCommBtn').addEventListener('click', async () => {
+      const name = document.getElementById('editCommName').value.trim();
+      if (!name) { toast('O nome não pode ficar vazio.', 'error'); return; }
+      const description = document.getElementById('editCommDesc').value.trim();
+      const theme_color = document.getElementById('editCommColor').value;
+      
+      let cover_url = community.cover_url;
+      if (pendingCover) cover_url = await uploadFile('gallery', `community_cover_${profile.id}_${Date.now()}.jpg`, pendingCover);
+      
+      let bg_url = community.background_url;
+      if (pendingBg) bg_url = await uploadFile('gallery', `community_bg_${profile.id}_${Date.now()}.jpg`, pendingBg);
+
+      const { error: updateError } = await db.from('communities').update({ name, description, theme_color, cover_url, background_url: bg_url }).eq('id', community.id);
+      if (updateError) { toast('Erro ao salvar: ' + updateError.message, 'error'); return; }
+      
+      closeModal(); toast('Comunidade atualizada!', 'success'); render();
+    });
+  }
+  
+    async function renderComunidade() {
     if (!profile || !viewingCommunityId) return;
     if (currentCommunityTopicId) return renderCommunityTopic();
     const communityId = viewingCommunityId;
@@ -1698,6 +1753,8 @@
       else if (isPending) joinButtonHTML = `<button class="btn btn-secondary" disabled>Pedido enviado</button>`;
       else if (community.privacy === 'publica') joinButtonHTML = `<button class="btn btn-primary" id="joinCommunityBtn" style="width:auto;">Participar</button>`;
       else joinButtonHTML = `<button class="btn btn-primary" id="joinCommunityBtn" style="width:auto;">Pedir para entrar</button>`;
+    } else {
+      joinButtonHTML = `<button class="btn btn-secondary" id="editCommunityBtn" style="width:auto;">Editar Comunidade</button>`;
     }
 
     let pendingRequestsHTML = '';
@@ -1762,6 +1819,7 @@
       if (latest) lastOnlineHTML = `<div class="community-sidebar-item" style="cursor:pointer;" onclick="viewProfile('${latest.id}')">🟢 ${escapeHtml(latest.name)} — ${formatDate(latest.last_seen)}</div>`;
     }
 
+    // LAYOUT INVERTIDO: SIDEBAR NA ESQUERDA, TÓPICOS NA DIREITA (MAIOR)
     mainContent.innerHTML = `
       <div class="community-wrapper">
         <div class="community-bg" style="${community.background_url ? `background-image:url('${community.background_url}');` : `background:var(--chamomile-soft);`}">
@@ -1780,21 +1838,23 @@
         ${community.description ? `<p style="margin-bottom:1.5rem; line-height:1.6;">${escapeHtml(community.description)}</p>` : ''}
         <div class="community-layout">
           <div>
-            <div class="view-header" style="margin-bottom:1rem;"><div class="view-title" style="font-size:1.2rem;">Tópicos e fóruns</div>${canSeeContent && isMember ? `<button class="btn btn-primary" id="newCommunityTopicBtn" style="width:auto;">Criar tópico</button>` : ''}</div>
-            ${topicsHTML}
-          </div>
-          <div>
             ${pendingRequestsHTML}
             <div class="community-sidebar-box"><h4>Enquetes atuais</h4>${pollsSidebarHTML}</div>
             <div class="community-sidebar-box"><h4>Eventos atuais</h4>${eventsSidebarHTML}</div>
             <div class="community-sidebar-box"><h4>Mais ativo (7 dias)</h4>${topPosterHTML}</div>
             <div class="community-sidebar-box"><h4>Último online</h4>${lastOnlineHTML}</div>
           </div>
+          <div>
+            <div class="view-header" style="margin-bottom:1rem;"><div class="view-title" style="font-size:1.2rem;">Tópicos e fóruns</div>${canSeeContent && isMember ? `<button class="btn btn-primary" id="newCommunityTopicBtn" style="width:auto;">Criar tópico</button>` : ''}</div>
+            ${topicsHTML}
+          </div>
         </div>
       </div>
     `;
 
     document.getElementById('backFromCommunityBtn').addEventListener('click', () => { viewingCommunityId = null; goBack(); });
+    const editBtn = document.getElementById('editCommunityBtn');
+    if (editBtn) editBtn.addEventListener('click', () => openEditCommunityModal(community));
     const joinBtn = document.getElementById('joinCommunityBtn');
     if (joinBtn) joinBtn.addEventListener('click', async () => {
       const role = community.privacy === 'publica' ? 'member' : 'pending';
@@ -1817,7 +1877,7 @@
     });
   }
 
-  async function openCreateCommunityTopicModal(communityId) {
+    async function openCreateCommunityTopicModal(communityId) {
     openModal(`
       <div class="modal-header"><h3>Novo tópico</h3><button class="modal-close" aria-label="Fechar">×</button></div>
       <div class="form-group"><label class="form-label">Tipo</label>
@@ -1826,7 +1886,25 @@
         <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;"><input type="radio" name="topicType" value="enquete"> Enquete</label>
       </div>
       <div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="ctTitle" maxlength="120"></div>
-      <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-input" id="ctContent" rows="4" style="resize:vertical;"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Descrição (HTML5 permitido)</label>
+        <div class="toolbar" id="ctToolbar">
+          <button class="tool-btn" data-cmd="bold" type="button"><b>B</b></button>
+          <button class="tool-btn" data-cmd="italic" type="button"><i>I</i></button>
+          <button class="tool-btn" data-cmd="underline" type="button"><u>U</u></button>
+          <div class="tool-divider"></div>
+          <button class="tool-btn" data-cmd="formatBlock" data-val="h2" type="button">Título</button>
+          <button class="tool-btn" data-cmd="formatBlock" data-val="p" type="button">Texto</button>
+          <div class="tool-divider"></div>
+          <button class="tool-btn" data-cmd="justifyLeft" type="button">⬅</button>
+          <button class="tool-btn" data-cmd="justifyCenter" type="button">⬌</button>
+          <button class="tool-btn" data-cmd="justifyRight" type="button">➡</button>
+          <div class="tool-divider"></div>
+          <button class="tool-btn" data-cmd="insertUnorderedList" type="button">• Lista</button>
+          <button class="tool-btn" data-cmd="createLink" type="button">🔗 Link</button>
+        </div>
+        <div class="composer-editor" id="ctContent" contenteditable="true" data-placeholder="Escreva sobre o tópico..."></div>
+      </div>
       <div class="form-group" id="ctEventGroup" style="display:none;"><label class="form-label">Data do evento</label><input type="datetime-local" class="form-input" id="ctEventDate"></div>
       <div class="form-group" id="ctPollGroup" style="display:none;">
         <label class="form-label">Opções da enquete</label>
@@ -1838,6 +1916,17 @@
       </div>
       <div class="edit-actions"><button class="btn btn-secondary" id="cancelCtBtn" type="button">Cancelar</button><button class="btn btn-primary" id="saveCtBtn" type="button" style="width:auto">Criar</button></div>
     `);
+    
+    const editor = document.getElementById('ctContent');
+    document.getElementById('ctToolbar').querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); const cmd = btn.dataset.cmd; const val = btn.dataset.val; editor.focus();
+        if (cmd === 'createLink') { const url = prompt('Endereço do link:', 'https://'); if (url) document.execCommand('createLink', false, url); }
+        else if (cmd === 'formatBlock') { document.execCommand('formatBlock', false, val); }
+        else { document.execCommand(cmd, false, null); }
+      });
+    });
+
     document.querySelector('.modal-close').addEventListener('click', closeModal);
     document.getElementById('cancelCtBtn').addEventListener('click', closeModal);
     document.querySelectorAll('input[name="topicType"]').forEach(r => {
@@ -1856,7 +1945,7 @@
     document.getElementById('saveCtBtn').addEventListener('click', async () => {
       const title = document.getElementById('ctTitle').value.trim();
       if (!title) { toast('Dê um título ao tópico.', 'error'); return; }
-      const content = document.getElementById('ctContent').value.trim();
+      const content = document.getElementById('ctContent').innerHTML; // Pega HTML em vez de texto puro
       const type = document.querySelector('input[name="topicType"]:checked').value;
       const eventDate = type === 'evento' ? document.getElementById('ctEventDate').value : null;
       const saveBtn = document.getElementById('saveCtBtn');
@@ -1877,7 +1966,7 @@
     });
   }
 
-  async function renderCommunityTopic() {
+    async function renderCommunityTopic() {
     const topicId = currentCommunityTopicId;
     const { data: topic, error } = await db.from('community_topics').select('*, author:profiles!community_topics_user_id_fkey(name, avatar_url)').eq('id', topicId).single();
     if (error || !topic) { currentCommunityTopicId = null; return renderComunidade(); }
@@ -1893,7 +1982,7 @@
           <div class="comment-item-avatar" onclick="viewProfile('${r.user_id}')">${rAvatar}</div>
           <div class="comment-item-body">
             <div class="comment-item-author" onclick="viewProfile('${r.user_id}')">${escapeHtml(rName)}</div>
-            <div class="comment-item-content">${escapeHtml(r.content)}</div>
+            <div class="comment-item-content">${sanitizeHTML(r.content)}</div>
           </div>
         </div>
       `;
@@ -1930,7 +2019,7 @@
         <h4 style="margin-bottom:0.3rem;">${topic.type === 'evento' ? '📅 Evento' : topic.type === 'enquete' ? '🗳️ Enquete' : 'Tópico'}</h4>
         <div style="font-family:'Cormorant Garamond', serif; font-size:1.6rem; font-weight:600; margin-bottom:0.4rem;">${escapeHtml(topic.title)}</div>
         <div style="font-size:0.8rem; color:var(--ink-soft); margin-bottom:0.6rem;">por ${escapeHtml(authorObj?.name || 'Usuário')} · ${formatDate(topic.created_at)}</div>
-        ${topic.content ? `<p style="line-height:1.6;">${escapeHtml(topic.content)}</p>` : ''}
+        ${topic.content ? `<div style="line-height:1.6;">${sanitizeHTML(topic.content)}</div>` : ''}
         ${eventHTML}
         ${pollHTML}
       </div>
