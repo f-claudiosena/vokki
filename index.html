@@ -77,6 +77,36 @@
   .composer-textarea { min-height: 140px; padding: 1rem; border: 1px solid var(--line); border-radius: 0.5rem; background: var(--cream); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; color: var(--ink); outline: none; width: 100%; resize: vertical; display: none; overflow-wrap: break-word; word-break: break-all; } .composer-textarea:focus { border-color: var(--chamomile); box-shadow: 0 0 0 3px rgba(201,169,110,0.15); } .composer-textarea.show { display: block; } .composer-editor.hide { display: none; }
   .character-selector { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--line-soft); } .character-selector-label { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.75rem; font-weight: 500; } .character-list { display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 0.4rem; } .character-chip { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.6rem 0.5rem; border: 2px solid transparent; border-radius: 0.6rem; background: var(--bg); cursor: pointer; transition: all 0.3s var(--ease-quiet); min-width: 76px; font-family: inherit; } .character-chip:hover { border-color: var(--line); } .character-chip.selected { border-color: var(--chamomile); background: var(--chamomile-soft); } .character-chip-avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: var(--cream); display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); } .character-chip-avatar img { width: 100%; height: 100%; object-fit: cover; } .character-chip-avatar .placeholder { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--chamomile-deep); font-weight: 500; } .character-chip-name { font-size: 0.68rem; color: var(--ink-soft); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 76px; font-weight: 400; letter-spacing: 0.02em; } .character-chip.selected .character-chip-name { color: var(--ink); font-weight: 500; } .character-empty { font-size: 0.85rem; color: var(--ink-soft); padding: 0.85rem 1rem; background: var(--bg); border-radius: 0.5rem; border: 1px dashed var(--line); line-height: 1.6; } .character-empty strong { color: var(--chamomile-deep); cursor: pointer; font-weight: 500; } .character-empty strong:hover { text-decoration: underline; }
   .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.25rem; } .gallery-card { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; overflow: hidden; cursor: pointer; transition: all 0.4s var(--ease-quiet); position: relative; } .gallery-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -14px rgba(42,40,35,0.12); } .gallery-card-image { aspect-ratio: 1; background: var(--chamomile-soft); overflow: hidden; display: flex; align-items: center; justify-content: center; } .gallery-card-image img { width: 100%; height: 100%; object-fit: cover; } .gallery-card-image-placeholder { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--chamomile-deep); font-weight: 500; } .gallery-card-info { padding: 0.85rem 1rem; } .gallery-card-name { font-size: 0.95rem; font-weight: 500; color: var(--ink); margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .gallery-card-meta { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); } .gallery-card-delete { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(255,255,255,0.9); border: 1px solid var(--line); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 0.9rem; opacity: 0; transition: all 0.3s var(--ease-quiet); } .gallery-card:hover .gallery-card-delete { opacity: 1; } .gallery-card-delete:hover { background: var(--danger); color: white; border-color: var(--danger); } .gallery-add { border: 2px dashed var(--line); background: transparent; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; min-height: 250px; cursor: pointer; transition: all 0.3s var(--ease-quiet); color: var(--ink-soft); border-radius: 0.75rem; font-family: inherit; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; } .gallery-add:hover { border-color: var(--chamomile); color: var(--chamomile-deep); background: var(--chamomile-soft); } .gallery-add svg { width: 32px; height: 32px; }
+
+  /* Grid de exibição do Perfil: facetas mostram 5 por linha, mundo (galeria) mostra 4 */
+  .profile-display-grid.facetas-mode { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+  .profile-display-grid.mundo-mode { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  @media (max-width: 820px) { .profile-display-grid.facetas-mode, .profile-display-grid.mundo-mode { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) { .profile-display-grid.facetas-mode, .profile-display-grid.mundo-mode { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Card de imagem da galeria (sem nome/descrição no grid) */
+  .gallery-card-mundo { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; overflow: hidden; cursor: pointer; transition: all 0.4s var(--ease-quiet); position: relative; aspect-ratio: 1; }
+  .gallery-card-mundo:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -14px rgba(42,40,35,0.12); }
+  .gallery-card-mundo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-card-mundo .gallery-card-delete { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(255,255,255,0.9); border: 1px solid var(--line); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 0.9rem; opacity: 0; transition: all 0.3s var(--ease-quiet); }
+  .gallery-card-mundo:hover .gallery-card-delete { opacity: 1; }
+  .gallery-card-mundo .gallery-card-delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+  /* Lightbox estilo Instagram para a Galeria (Mundo) */
+  .lightbox-overlay { position: fixed; inset: 0; background: rgba(20, 18, 15, 0.75); display: none; align-items: center; justify-content: center; z-index: 1100; padding: 2rem; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .lightbox-overlay.show { display: flex; }
+  .lightbox-box { background: var(--cream); border-radius: 1rem; width: 100%; max-width: 920px; max-height: 88vh; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr); overflow: hidden; animation: modalIn 0.35s var(--ease-quiet); }
+  .lightbox-image-side { background: #000; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  .lightbox-image-side img { max-width: 100%; max-height: 88vh; object-fit: contain; }
+  .lightbox-info-side { display: flex; flex-direction: column; min-height: 0; border-left: 1px solid var(--line); }
+  .lightbox-info-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); }
+  .lightbox-close { margin-left: auto; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--ink-soft); line-height: 1; }
+  .lightbox-close:hover { color: var(--ink); }
+  .lightbox-description { padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); font-size: 0.9rem; line-height: 1.6; color: var(--ink); }
+  .lightbox-comments { flex: 1; overflow-y: auto; padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.85rem; }
+  .lightbox-comment-input { display: flex; gap: 0.5rem; padding: 1rem 1.25rem; border-top: 1px solid var(--line); }
+  .lightbox-comment-input input { flex: 1; border: 1px solid var(--line); border-radius: 2rem; padding: 0.55rem 1rem; font-family: inherit; font-size: 0.85rem; background: var(--bg); color: var(--ink); }
+  @media (max-width: 820px) { .lightbox-box { grid-template-columns: 1fr; max-height: 92vh; overflow-y: auto; } .lightbox-image-side img { max-height: 50vh; } }
   .forum-actions { display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; } .forum-create-circle { width: 120px; height: 120px; border-radius: 50%; border: 2px dashed var(--line); background: transparent; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.4rem; cursor: pointer; transition: all 0.3s var(--ease-quiet); color: var(--ink-soft); font-family: inherit; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; } .forum-create-circle:hover { border-color: var(--chamomile); color: var(--chamomile-deep); background: var(--chamomile-soft); transform: scale(1.03); } .forum-create-circle svg { width: 28px; height: 28px; } .forum-find-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); padding: 0.85rem 1.5rem; border-radius: 0.5rem; font-family: inherit; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; transition: all 0.3s var(--ease-quiet); } .forum-find-btn:hover { border-color: var(--ink); background: var(--cream); }
   .forum-list { display: flex; flex-direction: column; gap: 0.85rem; } .forum-topic { background: var(--cream); border: 1px solid var(--line); border-radius: 0.75rem; padding: 1.5rem; cursor: pointer; transition: all 0.3s var(--ease-quiet); } .forum-topic:hover { border-color: var(--chamomile); transform: translateX(3px); } .forum-topic-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; gap: 1rem; } .forum-topic h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; letter-spacing: -0.01em; overflow-wrap: break-word; word-break: break-word; } .forum-topic-meta { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; flex-shrink: 0; } .forum-topic-preview { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: break-word; word-break: break-word; } .forum-topic-stats { margin-top: 0.75rem; font-size: 0.7rem; color: var(--ink-faint); letter-spacing: 0.1em; }
   .forum-detail { background: var(--cream); border: 1px solid var(--line); border-radius: 1rem; padding: 2rem; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; } .forum-detail-header { border-bottom: 1px solid var(--line); padding-bottom: 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; } .forum-detail-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 500; letter-spacing: -0.01em; overflow-wrap: break-word; word-break: break-word; } .topic-code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 0.15em; margin-top: 0.3rem; } .back-btn { background: none; border: 1px solid var(--line); padding: 0.5rem 1rem; border-radius: 0.4rem; cursor: pointer; font-family: inherit; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); transition: all 0.3s var(--ease-quiet); white-space: nowrap; flex-shrink: 0; } .back-btn:hover { color: var(--ink); border-color: var(--ink); } .delete-btn { color: var(--danger); border-color: var(--danger); } .delete-btn:hover { background: var(--danger); color: var(--cream); border-color: var(--danger); }
@@ -270,6 +300,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
           Amigos
         </button>
+        <button class="nav-item" data-view="galeria">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+          Galeria
+        </button>
         <button class="nav-item" data-view="jogos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="11" x2="15" y2="11"/><line x1="18" y1="13" x2="18" y2="13"/></svg>
           Jogos
@@ -294,6 +328,9 @@
 
 <div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
   <div class="modal" id="modalContent"></div>
+</div>
+<div class="lightbox-overlay" id="lightbox" role="dialog" aria-modal="true">
+  <div class="lightbox-box" id="lightboxContent"></div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -346,7 +383,14 @@
   function openModal(html) { modalContent.innerHTML = html; modalEl.classList.add('show'); }
   function closeModal() { modalEl.classList.remove('show'); modalContent.innerHTML = ''; }
   modalEl.addEventListener('click', (e) => { if (e.target === modalEl) closeModal(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeLightbox(); } });
+
+  const lightboxEl = document.getElementById('lightbox');
+  const lightboxContent = document.getElementById('lightboxContent');
+  function openLightbox(html) { lightboxContent.innerHTML = html; lightboxEl.classList.add('show'); }
+  function closeLightbox() { lightboxEl.classList.remove('show'); lightboxContent.innerHTML = ''; }
+  lightboxEl.addEventListener('click', (e) => { if (e.target === lightboxEl) closeLightbox(); });
+
 
   function processImageUpload(file, maxSize) {
     maxSize = maxSize || 2 * 1024 * 1024;
@@ -678,6 +722,7 @@
         case 'inicio': await renderDashboard(); break;
         case 'perfil': await renderProfile(); break;
         case 'amigos': await renderAmigos(); break;
+        case 'galeria': await renderGaleria(); break;
         case 'jogos': renderJogos(); break;
         case 'temas': renderTemas(); break;
         case 'rabisco': await renderRabisco(); break;
@@ -1006,23 +1051,47 @@
     const avatarHTML = targetProfile.avatar_url ? `<img src="${targetProfile.avatar_url}" alt="${escapeHtml(targetProfile.name)}">` : `<div class="profile-avatar-placeholder">${initial}</div>`;
     const bioHTML = targetProfile.bio ? `<div class="profile-bio">${sanitizeHTML(targetProfile.bio)}</div>` : `<div class="profile-bio empty">Sem bio ainda.</div>`;
     
-    const { data: facetas } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
-    const facetasGrid = (facetas || []).map(f => `
-      <div class="gallery-card">
-        <div class="gallery-card-image">${f.image_url ? `<img src="${f.image_url}" alt="${escapeAttr(f.name)}">` : `<div class="gallery-card-image-placeholder">${f.name.charAt(0).toUpperCase()}</div>`}</div>
-        <div class="gallery-card-info"><div class="gallery-card-name">${escapeHtml(f.name)}</div><div class="gallery-card-meta">personagem</div></div>
-      </div>
-    `).join('');
+    const showMundo = targetProfile.profile_display === 'mundo';
+    let displaySectionHTML = '';
+    if (showMundo) {
+      const { data: galleryItems } = await db.from('gallery_items').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
+      const mundoGrid = (galleryItems || []).map(g => `
+        <div class="gallery-card-mundo" data-open-gallery="${g.id}"><img src="${g.image_url}" alt=""></div>
+      `).join('');
+      displaySectionHTML = `
+        <div style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 500;">Seu mundo</div>
+        <div class="profile-display-grid mundo-mode">
+          ${mundoGrid || '<div class="empty-state" style="grid-column: 1 / -1;"><p>Nenhuma imagem na galeria.</p></div>'}
+        </div>
+      `;
+    } else {
+      const { data: facetas } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
+      const facetasGrid = (facetas || []).map(f => `
+        <div class="gallery-card">
+          <div class="gallery-card-image">${f.image_url ? `<img src="${f.image_url}" alt="${escapeAttr(f.name)}">` : `<div class="gallery-card-image-placeholder">${f.name.charAt(0).toUpperCase()}</div>`}</div>
+          <div class="gallery-card-info"><div class="gallery-card-name">${escapeHtml(f.name)}</div><div class="gallery-card-meta">personagem</div></div>
+        </div>
+      `).join('');
+      displaySectionHTML = `
+        <div style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 500;">Personagens (Facetas)</div>
+        <div class="profile-display-grid facetas-mode">
+          ${facetasGrid || '<div class="empty-state" style="grid-column: 1 / -1;"><p>Nenhum personagem criado.</p></div>'}
+        </div>
+      `;
+    }
 
     mainContent.innerHTML = `
       <div class="view-header"><div><div class="view-title">${isOwn ? 'Seu perfil' : 'Perfil'}</div></div><div style="display:flex; justify-content:flex-end;">${headerActions}</div></div>
       <div class="profile-card"><div class="profile-top"><div class="profile-avatar">${avatarHTML}</div><div class="profile-info"><h2>${escapeHtml(targetProfile.name)}</h2><div class="meta">membro desde ${formatDate(targetProfile.created_at)}</div></div></div>${bioHTML}</div>
       
-      <div style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 500;">Personagens (Facetas)</div>
-      <div class="gallery-grid">
-        ${facetasGrid || '<div class="empty-state" style="grid-column: 1 / -1;"><p>Nenhum personagem criado.</p></div>'}
-      </div>
+      ${displaySectionHTML}
     `;
+    
+    if (showMundo) {
+      document.querySelectorAll('[data-open-gallery]').forEach(card => {
+        card.addEventListener('click', () => openGalleryLightbox(card.dataset.openGallery));
+      });
+    }
     
     if (isOwn) {
       document.getElementById('editProfileBtn').addEventListener('click', openEditProfile);
@@ -1059,6 +1128,10 @@
       <div class="form-group"><label class="form-label">Nome (único)</label><input type="text" class="form-input" id="editName" value="${escapeAttr(profile.name)}"></div>
       <div class="form-group"><label class="form-label">Imagem de perfil</label><div class="upload-zone" id="avatarUploadZone"><div class="upload-preview" id="avatarPreview">${avatarPreview}</div><div class="upload-hint"><strong>Clique para enviar</strong><br>Formato <strong>1:1</strong> (quadrado).<br>Será redimensionada para <strong>196 × 196</strong>.<br>Máximo <strong>2 MB</strong>.</div><input type="file" id="avatarInput" accept="image/*" style="display:none"></div></div>
       <div class="form-group"><label class="form-label">Bio (HTML5 permitido)</label><div class="mode-toggle"><span class="mode-label">Modo</span><button class="mode-btn active" data-mode="simple" type="button">Simples</button><button class="mode-btn" data-mode="advanced" type="button">Avançado HTML</button></div><div class="toolbar" id="bioToolbar"><button class="tool-btn" data-cmd="bold" type="button"><b>B</b></button><button class="tool-btn" data-cmd="italic" type="button"><i>I</i></button><button class="tool-btn" data-cmd="underline" type="button"><u>U</u></button><div class="tool-divider"></div><button class="tool-btn" data-cmd="formatBlock" data-val="h2" type="button">Título</button><button class="tool-btn" data-cmd="formatBlock" data-val="p" type="button">Texto</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="justifyLeft" type="button">⬅</button><button class="tool-btn" data-cmd="justifyCenter" type="button">⬌</button><button class="tool-btn" data-cmd="justifyRight" type="button">➡</button><div class="tool-divider"></div><button class="tool-btn" data-cmd="insertUnorderedList" type="button">• Lista</button><button class="tool-btn" data-cmd="insertOrderedList" type="button">1. Lista</button><button class="tool-btn" data-cmd="createLink" type="button">🔗 Link</button></div><div class="composer-editor" id="bioEditor" contenteditable="true" data-placeholder="Escreva sobre você...">${profile.bio ? sanitizeHTML(profile.bio) : ''}</div><textarea class="composer-textarea" id="bioTextarea" placeholder="<p>Escreva em HTML5 livre...</p>">${escapeHtml(profile.bio || '')}</textarea></div>
+      <div class="form-group"><label class="form-label">O que mostrar no seu perfil</label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; margin-bottom:0.5rem; cursor:pointer;"><input type="radio" name="profileDisplay" value="facetas" ${profile.profile_display !== 'mundo' ? 'checked' : ''}> Mostrar suas facetas (personagens)</label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; cursor:pointer;"><input type="radio" name="profileDisplay" value="mundo" ${profile.profile_display === 'mundo' ? 'checked' : ''}> Mostrar seu mundo (galeria)</label>
+      </div>
       <div class="edit-actions"><button class="btn btn-secondary" id="cancelEditBtn" type="button">Cancelar</button><button class="btn btn-primary" id="saveProfileBtn" type="button" style="width:auto">Salvar</button></div>
     `);
     let pendingAvatarBlob = null;
@@ -1106,12 +1179,13 @@
       const name = document.getElementById('editName').value.trim();
       if (!name) { toast('O nome não pode ficar vazio.', 'error'); return; }
       const bio = currentMode === 'advanced' ? textarea.value : editor.innerHTML;
+      const profileDisplay = document.querySelector('input[name="profileDisplay"]:checked')?.value || 'facetas';
       let avatarUrl = profile.avatar_url;
       if (pendingAvatarBlob) {
         const path = `avatar_${profile.id}_${Date.now()}.jpg`;
         avatarUrl = await uploadFile('avatars', path, pendingAvatarBlob);
       }
-      const { error: updateError } = await db.from('profiles').update({ name, bio, avatar_url: avatarUrl }).eq('id', profile.id);
+      const { error: updateError } = await db.from('profiles').update({ name, bio, avatar_url: avatarUrl, profile_display: profileDisplay }).eq('id', profile.id);
       if (updateError) {
         if (updateError.message.includes('unique_username')) {
           toast('Este nome de usuário já está em uso.', 'error');
@@ -1415,6 +1489,129 @@
         });
       });
     }
+  }
+
+  /* ---------- GALERIA (MUNDO) ---------- */
+  async function renderGaleria() {
+    if (!profile) return;
+    const targetId = viewingProfileId || profile.id;
+    const { data: items, error } = await db.from('gallery_items').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
+    if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
+    const grid = (items || []).map(g => `
+      <div class="gallery-card-mundo" data-id="${g.id}" data-open-gallery="${g.id}">
+        <img src="${g.image_url}" alt="">
+        ${viewingProfileId ? '' : `<button class="gallery-card-delete" data-delete="${g.id}" aria-label="Remover">×</button>`}
+      </div>
+    `).join('');
+    mainContent.innerHTML = `
+      <div class="view-header"><div><div class="view-title">Galeria</div></div><div class="view-subtitle">${items?.length || 0} ${(items?.length || 0) === 1 ? 'imagem' : 'imagens'}</div></div>
+      <div class="gallery-grid">${grid}${viewingProfileId ? '' : `<button class="gallery-add" id="addGalleryItem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar imagem</button>`}</div>
+    `;
+    if (!viewingProfileId) {
+      document.getElementById('addGalleryItem').addEventListener('click', () => openCreateGalleryModal());
+      document.querySelectorAll('.gallery-card-mundo .gallery-card-delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation(); const id = btn.dataset.delete;
+          await db.from('gallery_items').delete().eq('id', id);
+          render(); toast('Imagem removida.', 'success');
+        });
+      });
+    }
+    document.querySelectorAll('[data-open-gallery]').forEach(card => {
+      card.addEventListener('click', () => openGalleryLightbox(card.dataset.openGallery));
+    });
+  }
+
+  async function openCreateGalleryModal() {
+    openModal(`
+      <div class="modal-header"><h3>Nova imagem</h3><button class="modal-close" aria-label="Fechar">×</button></div>
+      <div class="form-group"><label class="form-label">Imagem</label><div class="upload-zone" id="galleryUploadZone"><div class="upload-preview" id="galleryPreview"><div class="upload-preview-placeholder">+</div></div><div class="upload-hint"><strong>Clique para enviar</strong><br>Será cortada ao centro em <strong>1:1</strong>.<br>Máximo <strong>3 MB</strong>.</div><input type="file" id="galleryInput" accept="image/*" style="display:none"></div></div>
+      <div class="form-group"><label class="form-label">Descrição (opcional)</label><textarea class="form-input" id="galleryDescription" maxlength="500" rows="3" style="resize:vertical;"></textarea></div>
+      <div class="edit-actions"><button class="btn btn-secondary" id="cancelGalleryBtn" type="button">Cancelar</button><button class="btn btn-primary" id="saveGalleryBtn" type="button" style="width:auto">Adicionar imagem</button></div>
+    `);
+    let pendingBlob = null;
+    const uploadZone = document.getElementById('galleryUploadZone');
+    const galleryInput = document.getElementById('galleryInput');
+    const galleryPreview = document.getElementById('galleryPreview');
+    uploadZone.addEventListener('click', () => galleryInput.click());
+    galleryInput.addEventListener('change', async () => {
+      const file = galleryInput.files[0]; if (!file) return;
+      try {
+        const blob = await processGalleryImage(file);
+        pendingBlob = blob;
+        const url = URL.createObjectURL(blob);
+        galleryPreview.innerHTML = `<img src="${url}" alt="">`;
+      } catch(err) { toast(err, 'error'); }
+    });
+    document.getElementById('cancelGalleryBtn').addEventListener('click', closeModal);
+    document.getElementById('saveGalleryBtn').addEventListener('click', async () => {
+      if (!pendingBlob) { toast('Envie uma imagem.', 'error'); return; }
+      const description = document.getElementById('galleryDescription').value.trim();
+      const saveBtn = document.getElementById('saveGalleryBtn');
+      saveBtn.textContent = 'Salvando...'; saveBtn.disabled = true;
+      try {
+        const path = `mundo_${profile.id}_${Date.now()}.jpg`;
+        const imageUrl = await uploadFile('gallery', path, pendingBlob);
+        const { error: insertError } = await db.from('gallery_items').insert([{ user_id: profile.id, image_url: imageUrl, description }]);
+        if (insertError) { toast('Erro ao salvar: ' + insertError.message, 'error'); saveBtn.textContent = 'Adicionar imagem'; saveBtn.disabled = false; return; }
+        closeModal(); render();
+        toast('Imagem adicionada.', 'success');
+      } catch (err) { toast(err.message || 'Erro ao enviar imagem.', 'error'); saveBtn.textContent = 'Adicionar imagem'; saveBtn.disabled = false; }
+    });
+    document.querySelector('.modal-close').addEventListener('click', closeModal);
+  }
+
+  async function openGalleryLightbox(id) {
+    const { data: item, error } = await db.from('gallery_items').select('*, author:profiles!gallery_items_user_id_fkey(name, avatar_url)').eq('id', id).single();
+    if (error || !item) { toast('Não foi possível abrir a imagem.', 'error'); return; }
+    const authorObj = Array.isArray(item.author) ? item.author[0] : item.author;
+    const authorName = authorObj?.name || 'Anônimo';
+    const authorAvatar = authorObj?.avatar_url ? `<img src="${authorObj.avatar_url}">` : `<div class="message-avatar-placeholder">${authorName.charAt(0).toUpperCase()}</div>`;
+
+    const { data: comments } = await db.from('gallery_comments').select('*, author:profiles!gallery_comments_user_id_fkey(name, avatar_url)').eq('gallery_item_id', id).order('created_at', { ascending: true });
+    const commentsHTML = (comments || []).map(c => {
+      const cAuthor = Array.isArray(c.author) ? c.author[0] : c.author;
+      const cName = cAuthor?.name || 'Anônimo';
+      const cAvatar = cAuthor?.avatar_url ? `<img src="${cAuthor.avatar_url}">` : `<div class="ph">${cName.charAt(0).toUpperCase()}</div>`;
+      return `
+        <div class="comment-item">
+          <div class="comment-item-avatar" onclick="viewProfile('${c.user_id}')">${cAvatar}</div>
+          <div class="comment-item-body">
+            <div class="comment-item-author" onclick="viewProfile('${c.user_id}')">${escapeHtml(cName)}</div>
+            <div class="comment-item-content">${escapeHtml(c.content)}</div>
+          </div>
+        </div>
+      `;
+    }).join('') || '<p style="color:var(--ink-soft); font-size:0.85rem;">Nenhum comentário ainda.</p>';
+
+    openLightbox(`
+      <div class="lightbox-image-side"><img src="${item.image_url}" alt=""></div>
+      <div class="lightbox-info-side">
+        <div class="lightbox-info-header">
+          <div class="message-avatar" style="width:32px;height:32px;cursor:pointer;" onclick="viewProfile('${item.user_id}')">${authorAvatar}</div>
+          <div class="message-author" style="cursor:pointer;" onclick="viewProfile('${item.user_id}')">${escapeHtml(authorName)}</div>
+          <button class="lightbox-close" aria-label="Fechar">×</button>
+        </div>
+        ${item.description ? `<div class="lightbox-description">${escapeHtml(item.description)}</div>` : ''}
+        <div class="lightbox-comments" id="lightboxComments">${commentsHTML}</div>
+        <div class="lightbox-comment-input">
+          <input type="text" id="lightboxCommentInput" placeholder="Escreva um comentário...">
+          <button class="btn btn-primary" id="lightboxCommentBtn" style="width:auto;">Enviar</button>
+        </div>
+      </div>
+    `);
+    document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+    const sendComment = async () => {
+      const input = document.getElementById('lightboxCommentInput');
+      const content = input.value.trim();
+      if (!content) return;
+      const { error: cErr } = await db.from('gallery_comments').insert([{ gallery_item_id: id, user_id: profile.id, content }]);
+      if (cErr) { toast('Erro ao comentar: ' + cErr.message, 'error'); return; }
+      input.value = '';
+      openGalleryLightbox(id);
+    };
+    document.getElementById('lightboxCommentBtn').addEventListener('click', sendComment);
+    document.getElementById('lightboxCommentInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendComment(); });
   }
 
   async function openCreateModal(type) {
