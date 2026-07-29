@@ -2627,7 +2627,7 @@
       }).join('');
       mainContent.innerHTML = `
         <div class="view-header"><div class="view-title">Rabisco</div><div class="view-subtitle">${topics?.length || 0} ${(topics?.length || 0) === 1 ? 'página' : 'páginas'}</div></div>
-        <div class="forum-actions"><button class="forum-create-circle" id="createTopicBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Criar rabisco</button><button class="forum-find-btn" id="findTopicBtn">Encontrar rabisco</button></div>
+        <div class="forum-actions"><button class="forum-create-circle" id="createTopicBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Criar rabisco</button><button class="forum-find-btn" id="findTopicBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Encontrar rabisco</button></div>
         ${topics.length === 0 ? `<div class="empty-state"><h3>Sem rabiscos ainda</h3><p>Crie uma página ou encontre uma pelo código para começar a conversar.</p></div>` : `<div class="forum-list">${listHTML}</div>`}
       `;
       document.getElementById('createTopicBtn').addEventListener('click', openCreateTopic);
