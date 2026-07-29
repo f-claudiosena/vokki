@@ -382,6 +382,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="11" x2="15" y2="11"/><line x1="18" y1="13" x2="18" y2="13"/></svg>
           Jogos
         </button>
+        <button class="nav-item" data-view="buscar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Buscar
+        </button>
         <button class="nav-item" data-view="temas">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>
           Temas
@@ -772,19 +776,49 @@
     });
   });
   
-  document.getElementById('searchInput').addEventListener('input', async (e) => {
+    document.getElementById('searchInput').addEventListener('input', async (e) => {
     const q = e.target.value.trim();
     const resultsEl = document.getElementById('searchResults');
     if (!profile) return;
     if (q.length < 2) { resultsEl.innerHTML = ''; return; }
-    const { data: users } = await db.from('profiles').select('id, name, avatar_url').ilike('name', `%${q}%`).neq('id', profile.id).limit(5);
-    if (!users || users.length === 0) { resultsEl.innerHTML = '<div style="font-size:0.8rem; color:var(--ink-soft); padding:0.5rem;">Nenhum usuário encontrado.</div>'; return; }
-    resultsEl.innerHTML = users.map(u => `
-      <div class="search-result-item" onclick="viewProfile('${u.id}')">
-        <div class="search-result-avatar">${u.avatar_url ? `<img src="${u.avatar_url}">` : `<div class="ph">${u.name.charAt(0).toUpperCase()}</div>`}</div>
-        <div class="search-result-name">${u.name}</div>
-      </div>
-    `).join('');
+    
+    // Busca usuários e comunidades em paralelo
+    const [usersRes, communitiesRes] = await Promise.all([
+      db.from('profiles').select('id, name, avatar_url').ilike('name', `%${q}%`).neq('id', profile.id).limit(5),
+      db.from('communities').select('id, name, cover_url, privacy').ilike('name', `%${q}%`).limit(5)
+    ]);
+    
+    const users = usersRes.data || [];
+    const communities = communitiesRes.data || [];
+    
+    if (users.length === 0 && communities.length === 0) {
+      resultsEl.innerHTML = '<div style="font-size:0.8rem; color:var(--ink-soft); padding:0.5rem;">Nenhum resultado encontrado.</div>';
+      return;
+    }
+
+    let html = '';
+    
+    if (users.length > 0) {
+      html += '<div style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-faint); padding:0.5rem 0.25rem 0.25rem;">Usuários</div>';
+      html += users.map(u => `
+        <div class="search-result-item" onclick="viewProfile('${u.id}')">
+          <div class="search-result-avatar">${u.avatar_url ? `<img src="${u.avatar_url}">` : `<div class="ph">${u.name.charAt(0).toUpperCase()}</div>`}</div>
+          <div class="search-result-name">${u.name}</div>
+        </div>
+      `).join('');
+    }
+
+    if (communities.length > 0) {
+      html += '<div style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-faint); padding:0.75rem 0.25rem 0.25rem;">Comunidades</div>';
+      html += communities.map(c => `
+        <div class="search-result-item" onclick="viewCommunity('${c.id}')">
+          <div class="search-result-avatar">${c.cover_url ? `<img src="${c.cover_url}">` : `<div class="ph">${c.name.charAt(0).toUpperCase()}</div>`}</div>
+          <div class="search-result-name">${c.name}</div>
+        </div>
+      `).join('');
+    }
+    
+    resultsEl.innerHTML = html;
   });
 
   window.viewProfile = (userId) => {
