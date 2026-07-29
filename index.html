@@ -260,6 +260,16 @@
   .theme-card.selected { border-color: var(--chamomile); box-shadow: 0 0 0 2px var(--chamomile); transform: translateY(-2px); }
 
   @media (max-width: 820px) { .app-body { grid-template-columns: 1fr; padding: 1.25rem; gap: 1.5rem; } .main-content { max-width: 100%; } .sidebar { position: static; } .nav-list { display: flex; gap: 0.25rem; overflow-x: auto; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line); margin-bottom: 0.5rem; } .nav-item { white-space: nowrap; padding: 0.5rem 0.85rem; font-size: 0.85rem; } .nav-item svg { width: 16px; height: 16px; } .app-header { padding: 0.85rem 1.25rem; grid-template-columns: auto 1fr auto; gap: 0.75rem; } .top-tabs { gap: 0.15rem; padding: 0.2rem; } .top-tab { padding: 0.4rem 0.6rem; font-size: 0.62rem; letter-spacing: 0.15em; } .user-mini-name { display: none; } .profile-top { flex-direction: column; text-align: center; padding: 1.5rem; } .profile-bio { padding: 0 1.5rem 1.5rem; } .edit-row { grid-template-columns: 1fr; } .view-title { font-size: 1.4rem; } .forum-detail-header { flex-direction: column; align-items: flex-start; } .forum-detail-header h2 { font-size: 1.5rem; } .message-body { padding-left: 0; } .composer-actions { flex-direction: column; align-items: stretch; } .composer-hint { text-align: center; } }
+  /* FICHA E BLOCOS */
+  .sheet-blocks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .sheet-block-card { background: var(--cream); border: 1px solid var(--line); border-radius: 0.5rem; overflow: hidden; text-align: center; transition: transform 0.3s var(--ease-quiet); }
+  .sheet-block-card:hover { transform: translateY(-2px); }
+  .sheet-block-img { width: 100%; aspect-ratio: 1; background: var(--chamomile-soft); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .sheet-block-img img { width: 100%; height: 100%; object-fit: cover; }
+  .sheet-block-name { font-size: 0.85rem; padding: 0.4rem 0.5rem 0.1rem; font-weight: 500; color: var(--ink); }
+  .sheet-block-type { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); padding-bottom: 0.5rem; }
+  .block-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; padding: 0.5rem; background: var(--bg); border-radius: 0.4rem; border: 1px solid var(--line); }
+  .block-img-name { font-size: 0.7rem; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
 </style>
 </head>
 <body>
@@ -401,6 +411,7 @@
   let selectedCharacterId = null;
   let isInitialized = false;
   let viewingProfileId = null;
+  let viewingFacetaId = null;
   let previousView = null;
   let previousTopicId = null;
   let notifInterval = null;
@@ -830,6 +841,7 @@
         case 'realismo': await renderRealismo(); break;
         case 'comunidade': await renderComunidade(); break;
         case 'facetas': await renderFacetas(); break;
+        case 'faceta_detail': await renderFacetaDetail(); break;
         default: await renderDashboard();
       }
     } catch (err) {
@@ -1168,9 +1180,9 @@
     } else {
       const { data: facetas } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
       const facetasGrid = (facetas || []).map(f => `
-        <div class="gallery-card">
+        <div class="gallery-card" onclick="viewFaceta('${f.id}')" style="cursor:pointer;">
           <div class="gallery-card-image">${f.image_url ? `<img src="${f.image_url}" alt="${escapeAttr(f.name)}">` : `<div class="gallery-card-image-placeholder">${f.name.charAt(0).toUpperCase()}</div>`}</div>
-          <div class="gallery-card-info"><div class="gallery-card-name">${escapeHtml(f.name)}</div><div class="gallery-card-meta">personagem</div></div>
+          <div class="gallery-card-info"><div class="gallery-card-name">${escapeHtml(f.name)}</div><div class="gallery-card-meta">${f.has_sheet ? 'com ficha' : 'personagem'}</div></div>
         </div>
       `).join('');
       displaySectionHTML = `
@@ -1543,9 +1555,9 @@
     const { data: items, error } = await db.from('facetas').select('*').eq('user_id', targetId).order('created_at', { ascending: false });
     if (error) { mainContent.innerHTML = `<div class="empty-state"><h3>Erro</h3><p>${error.message}</p></div>`; return; }
     const grid = (items || []).map(f => `
-      <div class="gallery-card" data-id="${f.id}">
+      <div class="gallery-card" data-id="${f.id}" onclick="viewFaceta('${f.id}')" style="cursor:pointer;">
         <div class="gallery-card-image">${f.image_url ? `<img src="${f.image_url}" alt="${escapeAttr(f.name)}">` : `<div class="gallery-card-image-placeholder">${f.name.charAt(0).toUpperCase()}</div>`}</div>
-        <div class="gallery-card-info"><div class="gallery-card-name">${escapeHtml(f.name)}</div><div class="gallery-card-meta">personagem</div></div>
+        <div class="gallery-card-info"><div class="gallery-card-name">${escapeHtml(f.name)}</div><div class="gallery-card-meta">${f.has_sheet ? 'com ficha' : 'personagem'}</div></div>
         ${viewingProfileId ? '' : `<button class="gallery-card-delete" data-delete="${f.id}" aria-label="Remover">×</button>`}
       </div>
     `).join('');
@@ -1557,13 +1569,79 @@
       document.getElementById('addFaceta').addEventListener('click', () => openCreateModal('faceta'));
       document.querySelectorAll('.gallery-card-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
-          e.stopPropagation(); const id = btn.dataset.delete;
+          e.stopPropagation(); // Evita abrir o perfil ao clicar no X
+          const id = btn.dataset.delete;
           await db.from('facetas').delete().eq('id', id);
           if (selectedCharacterId === id) selectedCharacterId = null;
           render(); toast('Personagem removido.', 'success');
         });
       });
     }
+  }
+
+    window.viewFaceta = (id) => {
+    previousView = currentView;
+    viewingFacetaId = id;
+    currentView = 'faceta_detail';
+    document.querySelectorAll('.nav-item, .top-tab').forEach(b => b.classList.remove('active'));
+    render();
+  };
+
+  async function renderFacetaDetail() {
+    if (!viewingFacetaId) return;
+    const { data: faceta, error } = await db.from('facetas').select('*').eq('id', viewingFacetaId).single();
+    if (error || !faceta) { mainContent.innerHTML = `<div class="empty-state"><h3>Personagem não encontrado</h3></div>`; return; }
+
+    const initial = faceta.name.charAt(0).toUpperCase();
+    const avatarHTML = faceta.image_url ? `<img src="${faceta.image_url}" alt="${escapeAttr(faceta.name)}">` : `<div class="profile-avatar-placeholder">${initial}</div>`;
+    const bioHTML = faceta.has_sheet && faceta.sheet_bio ? `<div class="profile-bio">${sanitizeHTML(faceta.sheet_bio)}</div>` : `<div class="profile-bio empty">Sem descrição na ficha.</div>`;
+    
+    let blocksHTML = '';
+    if (faceta.has_sheet && faceta.sheet_blocks && faceta.sheet_blocks.length > 0) {
+      blocksHTML = `
+        <div style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 500;">Blocos & Itens</div>
+        <div class="sheet-blocks-grid">
+          ${faceta.sheet_blocks.map(b => `
+            <div class="sheet-block-card">
+              <div class="sheet-block-img">${b.image_url ? `<img src="${b.image_url}" alt="${escapeAttr(b.name)}">` : `<div class="gallery-card-image-placeholder">${b.name.charAt(0).toUpperCase()}</div>`}</div>
+              <div class="sheet-block-name">${escapeHtml(b.name)}</div>
+              <div class="sheet-block-type">${b.type === 'personagem' ? 'Personagem' : 'Item'}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    mainContent.innerHTML = `
+      <div class="view-header">
+        <div><div class="view-title">Personagem</div></div>
+        <button class="btn btn-secondary" id="backFromFacetaBtn" style="width:auto;">← Voltar</button>
+      </div>
+      <div class="profile-card">
+        <div class="profile-top">
+          <div class="profile-avatar">${avatarHTML}</div>
+          <div class="profile-info">
+            <h2>${escapeHtml(faceta.name)}</h2>
+            <div class="meta">${faceta.has_sheet ? 'Ficha completa' : 'Personagem'}</div>
+          </div>
+        </div>
+        ${bioHTML}
+      </div>
+      ${blocksHTML}
+    `;
+
+    document.getElementById('backFromFacetaBtn').addEventListener('click', () => {
+      viewingFacetaId = null;
+      if (previousView) {
+        currentView = previousView;
+        previousView = null;
+      } else {
+        currentView = 'facetas';
+      }
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
+      document.querySelectorAll('.top-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === currentView));
+      render();
+    });
   }
 
   async function renderRealismo() {
@@ -2259,12 +2337,36 @@
     const isFaceta = type === 'faceta';
     const label = isFaceta ? 'Nome do personagem' : 'Título da obra';
     const cta = isFaceta ? 'Criar personagem' : 'Adicionar obra';
+    
+    const sheetHtml = isFaceta ? `
+      <div class="form-group">
+        <label class="form-label">Tipo de ficha</label>
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-sheet="false" type="button">Sem ficha</button>
+          <button class="mode-btn" data-sheet="true" type="button">Com ficha</button>
+        </div>
+      </div>
+      <div id="sheetArea" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Descrição da ficha (HTML permitido)</label>
+          <div class="composer-editor" id="sheetBioEditor" contenteditable="true" data-placeholder="Descreva o personagem, história, atributos..." style="min-height: 120px;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Blocos (Itens ou Personagens ligados)</label>
+          <div id="blocksContainer"></div>
+          <button class="btn btn-secondary" id="addBlockBtn" type="button" style="width:auto; font-size:0.8rem; margin-top:0.5rem;">+ Adicionar bloco</button>
+        </div>
+      </div>
+    ` : '';
+
     openModal(`
       <div class="modal-header"><h3>${isFaceta ? 'Novo personagem' : 'Nova obra'}</h3><button class="modal-close" aria-label="Fechar">×</button></div>
-      <div class="form-group"><label class="form-label">Imagem</label><div class="upload-zone" id="createUploadZone"><div class="upload-preview" id="createPreview"><div class="upload-preview-placeholder">+</div></div><div class="upload-hint"><strong>Clique para enviar</strong><br>Será cortada ao centro em <strong>1:1</strong>.<br>Máximo <strong>3 MB</strong>.</div><input type="file" id="createInput" accept="image/*" style="display:none"></div></div>
+      <div class="form-group"><label class="form-label">Imagem principal</label><div class="upload-zone" id="createUploadZone"><div class="upload-preview" id="createPreview"><div class="upload-preview-placeholder">+</div></div><div class="upload-hint"><strong>Clique para enviar</strong><br>Será cortada ao centro em <strong>1:1</strong>.<br>Máximo <strong>3 MB</strong>.</div><input type="file" id="createInput" accept="image/*" style="display:none"></div></div>
       <div class="form-group"><label class="form-label">${label}</label><input type="text" class="form-input" id="createName" maxlength="60"></div>
+      ${sheetHtml}
       <div class="edit-actions"><button class="btn btn-secondary" id="cancelCreateBtn" type="button">Cancelar</button><button class="btn btn-primary" id="saveCreateBtn" type="button" style="width:auto">${cta}</button></div>
     `);
+    
     let pendingBlob = null;
     const uploadZone = document.getElementById('createUploadZone');
     const createInput = document.getElementById('createInput');
@@ -2275,22 +2377,83 @@
       try {
         const blob = await processGalleryImage(file);
         pendingBlob = blob;
-        const url = URL.createObjectURL(blob);
-        createPreview.innerHTML = `<img src="${url}" alt="">`;
+        createPreview.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="">`;
       } catch(err) { toast(err, 'error'); }
     });
+
+    let hasSheet = false;
+    if (isFaceta) {
+      const sheetBtns = modalContent.querySelectorAll('.mode-btn[data-sheet]');
+      sheetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          sheetBtns.forEach(b => b.classList.toggle('active', b === btn));
+          hasSheet = btn.dataset.sheet === 'true';
+          document.getElementById('sheetArea').style.display = hasSheet ? 'block' : 'none';
+        });
+      });
+
+      document.getElementById('addBlockBtn').addEventListener('click', () => {
+        const row = document.createElement('div');
+        row.className = 'block-row';
+        row.innerHTML = `
+          <input type="file" class="block-file" accept="image/*" style="display:none;">
+          <button class="btn btn-secondary block-upload-btn" style="width:auto; padding:0.4rem;" type="button">Img</button>
+          <span class="block-img-name">Sem imagem</span>
+          <input type="text" class="form-input block-name" placeholder="Nome do item/ligação" style="flex:1; padding:0.4rem;">
+          <select class="form-input block-type" style="width:auto; padding:0.4rem;">
+            <option value="item">Item</option>
+            <option value="personagem">Personagem</option>
+          </select>
+          <button class="btn btn-secondary remove-block-btn" style="width:auto; color:var(--danger); border:none; background:none; font-size:1.2rem;" type="button">×</button>
+        `;
+        document.getElementById('blocksContainer').appendChild(row);
+        
+        row.querySelector('.block-upload-btn').addEventListener('click', () => row.querySelector('.block-file').click());
+        row.querySelector('.block-file').addEventListener('change', (e) => {
+          if(e.target.files[0]) row.querySelector('.block-img-name').textContent = e.target.files[0].name.substring(0, 10) + '...';
+        });
+        row.querySelector('.remove-block-btn').addEventListener('click', () => row.remove());
+      });
+    }
+
     document.getElementById('cancelCreateBtn').addEventListener('click', closeModal);
     document.getElementById('saveCreateBtn').addEventListener('click', async () => {
       const name = document.getElementById('createName').value.trim();
       if (!name) { toast('Preencha o nome.', 'error'); return; }
-      if (!pendingBlob) { toast('Envie uma imagem.', 'error'); return; }
+      if (!pendingBlob) { toast('Envie uma imagem principal.', 'error'); return; }
       const saveBtn = document.getElementById('saveCreateBtn');
       saveBtn.textContent = 'Salvando...'; saveBtn.disabled = true;
       try {
         const path = `${type}_${profile.id}_${Date.now()}.jpg`;
         const imageUrl = await uploadFile('gallery', path, pendingBlob);
+        
+        let insertData = { user_id: profile.id, name, image_url: imageUrl };
+        
+        if (isFaceta && hasSheet) {
+          insertData.has_sheet = true;
+          insertData.sheet_bio = document.getElementById('sheetBioEditor').innerHTML;
+          
+          const blocks = [];
+          const blockRows = document.querySelectorAll('.block-row');
+          for (let row of blockRows) {
+            const bName = row.querySelector('.block-name').value.trim();
+            const bType = row.querySelector('.block-type').value;
+            const bFile = row.querySelector('.block-file').files[0];
+            if (!bName) continue;
+            
+            let bImgUrl = null;
+            if (bFile) {
+              const bBlob = await processGalleryImage(bFile);
+              const bPath = `block_${profile.id}_${Date.now()}.jpg`;
+              bImgUrl = await uploadFile('gallery', bPath, bBlob);
+            }
+            blocks.push({ name: bName, type: bType, image_url: bImgUrl });
+          }
+          insertData.sheet_blocks = blocks;
+        }
+
         const table = isFaceta ? 'facetas' : 'realismo';
-        const { error: insertError } = await db.from(table).insert([{ user_id: profile.id, name, image_url: imageUrl }]);
+        const { error: insertError } = await db.from(table).insert([insertData]);
         if (insertError) { toast('Erro ao salvar: ' + insertError.message, 'error'); saveBtn.textContent = cta; saveBtn.disabled = false; return; }
         closeModal(); render();
         toast(isFaceta ? 'Personagem criado.' : 'Obra adicionada.', 'success');
